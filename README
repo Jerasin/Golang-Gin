@@ -1,0 +1,2 @@
+# How to Debug Dockerfile
+### 1.run  docker run -it {img_name} /bin/bash

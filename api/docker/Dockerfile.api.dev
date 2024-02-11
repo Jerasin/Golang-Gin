@@ -1,0 +1,18 @@
+# เลือกฐานระบบที่ใช้เป็น golang เวอร์ชันล่าสุด
+FROM golang:latest 
+
+# ตั้งค่า Working Directory ของแอปพลิเคชันใน container
+WORKDIR /app 
+
+# คัดลอกเนื้อหาของโฟลเดอร์ปัจจุบันไปยัง Working Directory ใน container
+COPY ./api .
+
+# ดาวน์โหลดและติดตั้ง dependencies ของแอปพลิเคชัน
+RUN go mod download 
+RUN go install github.com/codegangsta/gin@latest
+
+# ระบุพอร์ตที่แอปพลิเคชันจะรองรับ
+EXPOSE 8080 
+
+# รันแอปพลิเคชัน
+CMD ["gin","-a","8000","-p","8080","run","main.go"]
