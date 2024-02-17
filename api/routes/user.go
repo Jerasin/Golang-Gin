@@ -9,9 +9,9 @@ import (
 func SetUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	controller := userController.DBController{Database: db}
 
-	router.GET("users", controller.GetUsers) // GET
-	// router.GET("collections/:id", ctrls.GetCollectionById)   // GET BY ID
-	router.POST("user", controller.CreateUser) // POST
-	// router.PATCH("collections", ctrls.UpdateCollection)      // PATCH
-	// router.DELETE("collections/:id", ctrls.DeleteCollection) // DELETE
+	router.GET("users", controller.GetUsers)         // GET
+	router.GET("user/:id", controller.GetUserById)   // GET BY ID
+	router.POST("user", controller.CreateUser)       // POST
+	router.PUT("user/:id", controller.UpdateUser)    // PUT
+	router.DELETE("user/:id", controller.DeleteUser) // DELETE
 }
