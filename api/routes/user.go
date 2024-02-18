@@ -7,6 +7,7 @@ import (
 )
 
 func SetUserRoutes(router *gin.RouterGroup, db *gorm.DB) {
+
 	controller := userController.DBController{Database: db}
 
 	router.GET("users", controller.GetUsers)         // GET

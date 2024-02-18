@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Jerasin/models"
+	"github.com/Jerasin/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,13 +46,40 @@ func (db *DBController) CreateUser(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBind(&user)
 
-	result := db.Database.Create(&user)
+	// log.Fatal("ShouldBind Error = ", err != nil)
 
-	if result.Error != nil || err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"meassage": "Bad request."})
-	} else {
-		c.JSON(http.StatusOK, gin.H{"results": &user})
+	if err != nil {
+		// log.Fatal("ShouldBind Error")
+		utils.LoggerInfo(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
 	}
+
+	// log.Fatalln("test")
+
+	result := db.Database.First(&user, "username = ?", user.Username)
+
+	// Check FindOne User If Error 'record not found' that mean Not Have User In DB
+	if result.Error != nil {
+		utils.LoggerInfo(result.Error.Error())
+		hash_password, _ := utils.HashPassword(user.Password)
+		user.Password = hash_password
+
+		result = db.Database.Create(&user)
+
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request."})
+
+		} else {
+			c.JSON(http.StatusOK, gin.H{"results": &user})
+		}
+
+	} else {
+		// Handle error...
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Duplicated User"})
+		return
+	}
+
 }
 
 // PUT
@@ -72,7 +100,7 @@ func (db *DBController) UpdateUser(c *gin.Context) {
 	result = db.Database.Where("id = ?", id).Updates(body)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"meassage": "Bad request."})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request."})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"results": &body})
 	}
