@@ -4,22 +4,15 @@ import (
 	"fmt"
 
 	"github.com/Jerasin/app/config"
+	"github.com/Jerasin/app/router"
 	"github.com/gin-gonic/gin"
 )
 
-func initMain() {
-	config.EnvConfig()
-	config.InitDbClient()
-	// config.InitLog()
-}
-
 func main() {
-	initMain()
+	config.EnvConfig()
 	PORT := config.GetEnv("PORT", "3000")
-	// init := config.Init()
-	// app := router.Init(init)
-
-	app := gin.Default()
+	init := config.Init()
+	app := router.Init(init)
 
 	app.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
