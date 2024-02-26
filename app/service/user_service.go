@@ -8,6 +8,7 @@ import (
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/repository"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -87,11 +88,12 @@ func (u UserServiceImpl) AddUserData(c *gin.Context) {
 
 	data, err := u.userRepository.Save(&request)
 	if err != nil {
-		log.Error("Happened error when saving data to database. Error", err)
-		pkg.PanicException(constant.UnknownError)
+		DbHandleError(err, c)
+		return
 	}
 
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+
 }
 
 func (u UserServiceImpl) GetAllUser(c *gin.Context) {

@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	FindAllUser() ([]model.User, error)
+	FindOneUser(condition model.User) (model.User, error)
 	FindUserById(id int) (model.User, error)
 	Save(user *model.User) (model.User, error)
 	DeleteUserById(id int) error
@@ -20,13 +21,25 @@ type UserRepositoryImpl struct {
 func (u UserRepositoryImpl) FindAllUser() ([]model.User, error) {
 	var users []model.User
 
-	var err = u.db.Preload("Role").Find(&users).Error
+	var err = u.db.Find(&users).Error
 	if err != nil {
 		log.Error("Got an error finding all couples. Error: ", err)
 		return nil, err
 	}
 
 	return users, nil
+}
+
+func (u UserRepositoryImpl) FindOneUser(condition model.User) (model.User, error) {
+	// var user model.User
+
+	var err = u.db.First(&condition).Error
+	if err != nil {
+		log.Error("Got an error finding One couples. Error: ", err)
+		return condition, err
+	}
+
+	return condition, nil
 }
 
 func (u UserRepositoryImpl) FindUserById(id int) (model.User, error) {

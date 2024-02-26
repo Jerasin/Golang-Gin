@@ -28,7 +28,7 @@ func InitDbClient() *gorm.DB {
 	}
 
 	fmt.Println("mysqlInfo", mysqlInfo)
-	db, err := gorm.Open(mysql.Open(mysqlInfo), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(mysqlInfo), &gorm.Config{TranslateError: true})
 	if err != nil {
 		panic("failed to connect database")
 	}

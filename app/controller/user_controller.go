@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/Jerasin/app/service"
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +18,6 @@ type UserControllerImpl struct {
 }
 
 func (u UserControllerImpl) GetAllUserData(c *gin.Context) {
-	fmt.Println("GetAllUserData")
 	u.svc.GetAllUser(c)
 }
 

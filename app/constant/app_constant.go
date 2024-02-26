@@ -11,12 +11,13 @@ const (
 	UnknownError
 	InvalidRequest
 	Unauthorized
+	Duplicated
 )
 
 func (r ResponseStatus) GetResponseStatus() string {
-	return [...]string{"SUCCESS", "DATA_NOT_FOUND", "UNKNOWN_ERROR", "INVALID_REQUEST", "UNAUTHORIZED"}[r-1]
+	return [...]string{"SUCCESS", "DATA_NOT_FOUND", "UNKNOWN_ERROR", "INVALID_REQUEST", "UNAUTHORIZED", "DUPLICATED"}[r-1]
 }
 
 func (r ResponseStatus) GetResponseMessage() string {
-	return [...]string{"Success", "Data Not Found", "Unknown Error", "Invalid Request", "Unauthorized"}[r-1]
+	return [...]string{"Success", "Data Not Found", "Unknown Error", "Invalid Request", "Unauthorized", "DUPLICATED"}[r-1]
 }
