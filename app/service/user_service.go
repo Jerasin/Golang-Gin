@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,7 +16,7 @@ import (
 )
 
 type UserService interface {
-	GetAllUser(c *gin.Context)
+	GetAllUser(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string)
 	GetUserById(c *gin.Context)
 	AddUserData(c *gin.Context)
 	UpdateUserData(c *gin.Context)
@@ -96,18 +97,27 @@ func (u UserServiceImpl) AddUserData(c *gin.Context) {
 
 }
 
-func (u UserServiceImpl) GetAllUser(c *gin.Context) {
+func (u UserServiceImpl) GetAllUser(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string) {
 	defer pkg.PanicHandler(c)
 
 	log.Info("start to execute get all data user")
+	offset := (page - 1) * pageSize
+	limit := pageSize
 
-	data, err := u.userRepository.FindAllUser()
+	data, err := u.userRepository.FindAllUser(limit, offset, search, sortField, sortValue)
 	if err != nil {
 		log.Error("Happened Error when find all user data. Error: ", err)
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+	count, err := u.userRepository.Count()
+	if err != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
+	fmt.Println("pageSize", pageSize)
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, data, count, page, pageSize))
 }
 
 func (u UserServiceImpl) DeleteUser(c *gin.Context) {

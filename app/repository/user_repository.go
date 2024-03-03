@@ -1,27 +1,36 @@
 package repository
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Jerasin/app/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	FindAllUser() ([]model.User, error)
+	FindAllUser(imit int, offset int, search string, sortField string, sortValue string) ([]model.User, error)
 	FindOneUser(condition model.User) (model.User, error)
 	FindUserById(id int) (model.User, error)
 	Save(user *model.User) (model.User, error)
 	DeleteUserById(id int) error
+	Count() (int64, error)
 }
 
 type UserRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func (u UserRepositoryImpl) FindAllUser() ([]model.User, error) {
+func (u UserRepositoryImpl) FindAllUser(imit int, offset int, search string, sortField string, sortValue string) ([]model.User, error) {
 	var users []model.User
 
-	var err = u.db.Find(&users).Error
+	log.Info("offset", offset)
+	log.Info("imit", imit)
+
+	order := fmt.Sprintf("%s %s", sortField, strings.ToUpper(sortValue))
+	fmt.Println("order", order)
+	var err = u.db.Order(order).Offset(offset).Limit(imit).Find(&users).Error
 	if err != nil {
 		log.Error("Got an error finding all couples. Error: ", err)
 		return nil, err
@@ -68,6 +77,17 @@ func (u UserRepositoryImpl) DeleteUserById(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (u UserRepositoryImpl) Count() (int64, error) {
+	var user model.User
+	var count int64
+	err := u.db.Model(&user).Count(&count).Error
+	if err != nil {
+		log.Error("Got an error when delete user. Error: ", err)
+		return count, err
+	}
+	return count, err
 }
 
 func UserRepositoryInit(db *gorm.DB) *UserRepositoryImpl {

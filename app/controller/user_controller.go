@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/Jerasin/app/service"
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +20,11 @@ type UserControllerImpl struct {
 }
 
 func (u UserControllerImpl) GetAllUserData(c *gin.Context) {
-	u.svc.GetAllUser(c)
+	query := CreatePagination(c)
+
+	fmt.Println("query", query.search)
+
+	u.svc.GetAllUser(c, query.page, query.pageSize, query.search, query.sortField, query.sortValue)
 }
 
 func (u UserControllerImpl) AddUserData(c *gin.Context) {
