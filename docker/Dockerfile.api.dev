@@ -1,0 +1,27 @@
+# เลือกฐานระบบที่ใช้เป็น golang เวอร์ชันล่าสุด
+FROM golang:latest 
+
+# ตั้งค่า Working Directory ของแอปพลิเคชันใน container
+WORKDIR /app 
+
+# คัดลอกเนื้อหาของโฟลเดอร์ปัจจุบันไปยัง Working Directory ใน container
+COPY . .
+
+# ดาวน์โหลดและติดตั้ง dependencies ของแอปพลิเคชัน
+RUN go mod download 
+RUN go install github.com/codegangsta/gin@latest
+RUN go install github.com/google/wire/cmd/wire@latest
+# RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.4
+RUN wire gen ./app/module
+
+# build swagger
+RUN swag init --parseDependency --parseInternal -g ./main.go -o ./docs
+
+# ระบุพอร์ตที่แอปพลิเคชันจะรองรับ
+EXPOSE 3000 
+
+# รันแอปพลิเคชัน
+CMD ["gin","-a","3001","-p","3000","--buildArgs","-buildvcs=false","run","main.go"]
+
+

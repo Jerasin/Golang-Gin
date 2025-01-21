@@ -1,0 +1,14 @@
+[
+  {
+    "name": "read"
+  },
+  {
+    "name": "create"
+  },
+  {
+    "name": "update"
+  },
+  {
+    "name": "delete"
+  }
+]

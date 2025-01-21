@@ -1,0 +1,4 @@
+*.exe
+db-data
+
+go-bin
