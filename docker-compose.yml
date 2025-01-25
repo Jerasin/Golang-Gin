@@ -51,3 +51,24 @@ services:
       - 80:80
     depends_on:
       - api
+
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=minioaccesskey
+      - MINIO_ROOT_PASSWORD=miniosecretkey
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost/minio-console
+    # ports:
+    #   - "9000:9000" # API port
+    #   - "9001:9001" # Console port
+    volumes:
+      - minio_data:/data
+    command: server /data --address ':9000' --console-address ':9001'
+    restart: unless-stopped
+
+
+volumes:
+  minio_data:
+    driver: local
