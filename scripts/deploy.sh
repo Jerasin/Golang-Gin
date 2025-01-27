@@ -13,4 +13,4 @@ echo "Stopping and removing containers..."
 docker-compose down || exit 1  # ถ้า docker-compose down ไม่สำเร็จ ให้หยุด
 
 echo "Building and starting containers..."
-docker-compose up --build || exit 1  # ถ้า docker-compose up ไม่สำเร็จ ให้หยุด
+docker-compose up --build -d || exit 1  # ถ้า docker-compose up ไม่สำเร็จ ให้หยุด
