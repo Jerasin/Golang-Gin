@@ -8,12 +8,16 @@ permissions:
   contents: read
 
 jobs:
- deploy-app:
-   runs-on: ubuntu-latest
-   steps:
-     - name: Checkout repository
-       uses: actions/checkout@v4
-     - name: Deploy the app
-       uses: digitalocean/app_action/deploy@v2
-       with:
-         token: ${{ secrets.YOUR_DIGITALOCEAN_ACCESS_TOKEN_VARIABLE_NAME }} 
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: webfactory/ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to Droplet
+        run: |
+          ssh -o StrictHostKeyChecking=no root@178.128.97.246 "/root/digital-ocean-github-actions-ci/scripts/deploy.sh"
+
