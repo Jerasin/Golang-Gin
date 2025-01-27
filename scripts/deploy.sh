@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ls -la
+cd ~/workspace/Golang-Gin
 
 git pull
 
