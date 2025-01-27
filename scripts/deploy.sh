@@ -3,6 +3,7 @@
 set -e  # ถ้าคำสั่งไหนล้มเหลว ให้หยุดทันที
 set -x
 
+
 echo "Changing to the project directory..."
 cd ~/workspace/Golang-Gin || exit 1  # ถ้า cd ไม่สำเร็จ ให้หยุด script
 
