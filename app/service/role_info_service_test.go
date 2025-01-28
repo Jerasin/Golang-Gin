@@ -40,6 +40,7 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 			},
 			args: args{
 				c: func() *gin.Context {
+					gin.SetMode(gin.ReleaseMode)
 					// สร้าง Gin context สำหรับการทดสอบ request
 					w := httptest.NewRecorder()
 					c, _ := gin.CreateTestContext(w)
@@ -71,6 +72,7 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 			},
 			args: args{
 				c: func() *gin.Context {
+					gin.SetMode(gin.ReleaseMode)
 					// สร้าง Gin context สำหรับ request ที่มี JSON ผิด
 					w := httptest.NewRecorder()
 					c, _ := gin.CreateTestContext(w)
