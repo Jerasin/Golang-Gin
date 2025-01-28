@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy to Droplet
         run: |
-          ssh -o StrictHostKeyChecking=no root@178.128.97.246 "workspace/Golang-Gin/deploy.sh"
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST_IP }} "workspace/Golang-Gin/deploy.sh"
 
           
 
