@@ -1,0 +1,5 @@
+FROM mysql:8
+# RUN mkdir -p /etc/mysql/conf.d
+# COPY ./mysql/conf.d/ /etc/mysql/conf.d/
+
+EXPOSE 3306

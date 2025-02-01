@@ -1,0 +1,10 @@
+[
+    {
+        "username": "admin",
+        "password": "1234",
+        "fullname": "admin test",
+        "email": "admin@gmail.com",
+        "avatar": "admin",
+        "roleInfoId": 1
+    }
+]
