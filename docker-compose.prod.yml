@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     volumes:
       - .:/app
     depends_on:
@@ -37,6 +37,38 @@ services:
     image: adminer
     restart: always
     container_name: adminer
-    ports:
-      - 8000:8080
+    # ports:
+    #   - 8000:8080
 
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx.dev.Dockerfile
+    container_name: nginx
+    restart: always
+    ports:
+      # - 4200:4200
+      - 80:80
+    depends_on:
+      - api
+
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=minioaccesskey
+      - MINIO_ROOT_PASSWORD=miniosecretkey
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost/minio-console
+    # ports:
+    #   - "9000:9000" # API port
+    #   - "9001:9001" # Console port
+    volumes:
+      - minio_data:/data
+    command: server /data --address ':9000' --console-address ':9001'
+    restart: unless-stopped
+
+
+volumes:
+  minio_data:
+    driver: local

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Jerasin/app/constant"
+	"github.com/Jerasin/app/dto"
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/repository"
@@ -18,7 +19,7 @@ import (
 )
 
 type AuthServiceInterface interface {
-	Login(c *gin.Context)
+	Login(c *gin.Context, loginDto dto.LoginDtoRequest)
 	RefreshToken(c *gin.Context)
 	Register(c *gin.Context)
 }
@@ -43,24 +44,15 @@ func (authSvc AuthServiceModel) Register(c *gin.Context) {
 	authSvc.UserService.CreateUser(c)
 }
 
-func (authSvc AuthServiceModel) Login(c *gin.Context) {
+func (authSvc AuthServiceModel) Login(c *gin.Context, loginDto dto.LoginDtoRequest) {
 	defer pkg.PanicHandler(c)
 
-	var request request.LoginRequest
 	var user model.User
 	var err error
 
-	fmt.Println("request", request)
+	fmt.Println("loginDto", loginDto)
 
-	if err = c.ShouldBindJSON(&request); err != nil {
-		log.Error("Happened error when mapping request from FE. Error", err)
-		pkg.CustomPanicException(constant.InvalidRequest, err.Error())
-	}
-
-	query := make(map[interface{}]interface{})
-	query["username"] = request.Username
-
-	err = authSvc.BaseRepository.FindOne(nil, &user, "username = ?", query["username"])
+	err = authSvc.BaseRepository.FindOne(nil, &user, "username = ?", loginDto.Username)
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
@@ -73,7 +65,7 @@ func (authSvc AuthServiceModel) Login(c *gin.Context) {
 
 	fmt.Println("user", user)
 
-	isError := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
+	isError := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDto.Password))
 
 	fmt.Println("isError", isError)
 
@@ -82,16 +74,14 @@ func (authSvc AuthServiceModel) Login(c *gin.Context) {
 		pkg.PanicException(constant.InvalidRequest)
 	}
 
-	// var res response.User
-	// copier.Copy(&res, &result)
-
 	jwt := pkg.NewAuthService()
 
 	token := jwt.GenerateToken(user.Username)
 
-	var response = make(map[string]interface{})
-	response["token"] = token
-	response["refresh_token"] = jwt.GenerateRefreshToken(user.Username)
+	response := dto.LoginDtoDataResponse{
+		Token:        token,
+		RefreshToken: jwt.GenerateRefreshToken(user.Username),
+	}
 
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, response))
 }

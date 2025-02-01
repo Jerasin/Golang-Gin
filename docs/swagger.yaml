@@ -1,4 +1,41 @@
 definitions:
+  dto.LoginDtoDataResponse:
+    properties:
+      refresh_token:
+        example: admin
+        minLength: 1
+        type: string
+      token:
+        example: "1234"
+        minLength: 1
+        type: string
+    required:
+    - refresh_token
+    - token
+    type: object
+  dto.LoginDtoRequest:
+    properties:
+      password:
+        example: "1234"
+        minLength: 1
+        type: string
+      username:
+        example: admin
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.LoginDtoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.LoginDtoDataResponse'
+      response_key:
+        type: string
+      response_message:
+        type: string
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -102,18 +139,6 @@ definitions:
         type: string
       value:
         type: number
-    type: object
-  request.LoginRequest:
-    properties:
-      password:
-        example: "1234"
-        type: string
-      username:
-        example: admin
-        type: string
-    required:
-    - password
-    - username
     type: object
   request.OrderItem:
     properties:
@@ -455,6 +480,8 @@ definitions:
     properties:
       description:
         type: string
+      id:
+        type: integer
       name:
         type: string
     type: object
@@ -554,12 +581,12 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/request.LoginRequest'
+          $ref: '#/definitions/dto.LoginDtoRequest'
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.User'
+            $ref: '#/definitions/dto.LoginDtoResponse'
       summary: Login
       tags:
       - Auth

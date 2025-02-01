@@ -1,8 +1,12 @@
 package controller
 
 import (
+	"github.com/Jerasin/app/constant"
+	"github.com/Jerasin/app/dto"
+	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/service"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/validator.v2"
 )
 
 type AuthControllerInterface interface {
@@ -54,13 +58,27 @@ func (auth AuthController) Register(c *gin.Context) {
 // @Description Login
 // @Tags Auth
 //
-// @Param request body request.LoginRequest true "query params"
+// @Param request body dto.LoginDtoRequest true "query params"
 //
-//	@Success		200	{object}	model.User
+//	@Success		200	{object}	dto.LoginDtoResponse
 //
 // @Router /auth/login [post]
 func (auth AuthController) Login(c *gin.Context) {
-	auth.svc.Login(c)
+	defer pkg.PanicHandler(c)
+
+	var loginDto dto.LoginDtoRequest
+	var err error
+	err = c.ShouldBindJSON(&loginDto)
+
+	if err != nil {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	if err = validator.Validate(&loginDto); err != nil {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	auth.svc.Login(c, loginDto)
 }
 
 // @Summary RefreshToken

@@ -30,7 +30,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.LoginRequest"
+                            "$ref": "#/definitions/dto.LoginDtoRequest"
                         }
                     }
                 ],
@@ -38,7 +38,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/dto.LoginDtoResponse"
                         }
                     }
                 }
@@ -1243,6 +1243,58 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.LoginDtoDataResponse": {
+            "type": "object",
+            "required": [
+                "refresh_token",
+                "token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "admin"
+                },
+                "token": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "1234"
+                }
+            }
+        },
+        "dto.LoginDtoRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "1234"
+                },
+                "username": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "admin"
+                }
+            }
+        },
+        "dto.LoginDtoResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.LoginDtoDataResponse"
+                },
+                "response_key": {
+                    "type": "string"
+                },
+                "response_message": {
+                    "type": "string"
+                }
+            }
+        },
         "gorm.DeletedAt": {
             "type": "object",
             "properties": {
@@ -1398,23 +1450,6 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "number"
-                }
-            }
-        },
-        "request.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "1234"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "admin"
                 }
             }
         },
@@ -1913,6 +1948,9 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
