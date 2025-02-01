@@ -41,11 +41,25 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context) {
 	var body model.RoleInfo
 
 	err = c.ShouldBindJSON(&body)
+	fmt.Println("ShouldBindJSON err", err)
+
 	if err != nil {
+		fmt.Println("ShouldBindJSON error")
 		pkg.PanicException(constant.BadRequest)
 	}
 
-	p.BaseRepository.ClientDb().Transaction(func(tx *gorm.DB) error {
+	fmt.Printf("body = %+v \n", body)
+
+	db := p.BaseRepository.ClientDb()
+
+	if db == nil {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	// fmt.Printf("db = %+v \n", db)
+
+	db.Transaction(func(tx *gorm.DB) error {
+		fmt.Printf("tx = %+v \n", tx)
 		err := p.BaseRepository.Save(tx, &body)
 
 		if err != nil {
@@ -55,6 +69,8 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context) {
 		c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.CreateResponse()))
 		return nil
 	})
+
+	fmt.Println("End")
 }
 
 func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.RoleInfo) {

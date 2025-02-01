@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -22,10 +24,11 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 		c *gin.Context
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name       string
+		fields     fields
+		args       args
+		wantErr    bool
+		statusCode int
 	}{
 		// TODO: Add test cases.
 		{
@@ -33,15 +36,16 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 			fields: fields{
 				BaseRepository: func() repository.BaseRepositoryInterface {
 					mockRepo := new(mocks.MockBaseRepository)
-					mockRepo.On("ClientDb").Return(nil)                           // Mock ClientDb
-					mockRepo.On("Save", mock.Anything, mock.Anything).Return(nil) // Mock Save success
+					mockDb, _ := mocks.NewMockDB()
+					mockRepo.On("ClientDb").Return(mockDb)
+					mockRepo.On("Transaction").Return(nil)
+					mockRepo.On("Save", mock.Anything, mock.Anything).Return(nil)
 					return mockRepo
 				}(),
 			},
 			args: args{
 				c: func() *gin.Context {
 					gin.SetMode(gin.ReleaseMode)
-					// สร้าง Gin context สำหรับการทดสอบ request
 					w := httptest.NewRecorder()
 					c, _ := gin.CreateTestContext(w)
 
@@ -49,7 +53,6 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 						Name: "Admin",
 					}
 
-					// Marshal body
 					body, _ := json.Marshal(roleInfo)
 					req, _ := http.NewRequest(http.MethodPost, "/createRoleInfo", bytes.NewReader(body))
 					req.Header.Set("Content-Type", "application/json")
@@ -58,27 +61,25 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 					return c
 				}(),
 			},
-			wantErr: false, // หวังว่าจะไม่เกิด error
+			wantErr:    false,
+			statusCode: 200,
 		},
 		{
-			name: "Error case with invalid JSON",
+			name: "Error case with invalid JSON format",
 			fields: fields{
 				BaseRepository: func() repository.BaseRepositoryInterface {
-					// Mock repository with no operations
 					mockRepo := new(mocks.MockBaseRepository)
-					mockRepo.On("ClientDb").Return(nil)
+					mockDb, _ := mocks.NewMockDB()
+					mockRepo.On("ClientDb").Return(mockDb)
 					return mockRepo
 				}(),
 			},
 			args: args{
 				c: func() *gin.Context {
 					gin.SetMode(gin.ReleaseMode)
-					// สร้าง Gin context สำหรับ request ที่มี JSON ผิด
 					w := httptest.NewRecorder()
 					c, _ := gin.CreateTestContext(w)
-
-					// ส่งข้อมูล JSON ที่ไม่ถูกต้อง
-					invalidBody := []byte(`{"roleName":""}`) // ตัวอย่างที่ไม่ถูกต้อง
+					invalidBody := []byte(`{"Name":"4"`)
 					req, _ := http.NewRequest(http.MethodPost, "/createRoleInfo", bytes.NewReader(invalidBody))
 					req.Header.Set("Content-Type", "application/json")
 					c.Request = req
@@ -86,7 +87,8 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 					return c
 				}(),
 			},
-			wantErr: true, // หวังว่าจะเกิด error (BadRequest)
+			wantErr:    true,
+			statusCode: 400,
 		},
 	}
 	for _, tt := range tests {
@@ -95,6 +97,19 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 				BaseRepository: tt.fields.BaseRepository,
 			}
 			p.CreateRoleInfo(tt.args.c)
+
+			if tt.wantErr {
+				if tt.statusCode == tt.args.c.Writer.Status() {
+					fmt.Println("dd", tt.args.c.Writer.Status())
+					assert.NotNil(t, tt.args.c)
+					assert.Equal(t, tt.statusCode, tt.args.c.Writer.Status())
+				} else {
+					panic("error")
+				}
+
+			} else {
+				assert.Equal(t, http.StatusOK, tt.args.c.Writer.Status())
+			}
 		})
 	}
 }

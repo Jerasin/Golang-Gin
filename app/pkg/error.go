@@ -52,6 +52,8 @@ func CustomPanicException(responseKey constant.ResponseStatus, message string) {
 
 func PanicHandler(c *gin.Context) {
 	if err := recover(); err != nil {
+		fmt.Printf("PanicHandler = %+v", err)
+
 		str := fmt.Sprint(err)
 		strArr := strings.Split(str, ":")
 
