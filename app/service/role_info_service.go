@@ -44,7 +44,7 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 		Description: body.Description,
 	}
 
-	fmt.Printf("body = %+v \n", model)
+	// fmt.Printf("body = %+v \n", model)
 
 	db := p.BaseRepository.ClientDb()
 
@@ -52,10 +52,10 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 		pkg.PanicException(constant.BadRequest)
 	}
 
-	fmt.Printf("db = %+v \n", db)
+	// fmt.Printf("db = %+v \n", db)
 
 	err = db.Transaction(func(tx *gorm.DB) error {
-		fmt.Printf("Transaction Running...")
+		// fmt.Printf("Transaction Running...")
 
 		p.BaseRepository.Find(tx, &model, "name = ?", repository.PaginationModel{
 			Limit: 1,
