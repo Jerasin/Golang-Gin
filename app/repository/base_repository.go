@@ -27,7 +27,7 @@ type BaseRepositoryInterface interface {
 	Save(tx *gorm.DB, model interface{}) error
 	IsExits(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error
 	FindOne(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error
-	Find(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error
+	Find(tx *gorm.DB, model interface{}, query interface{}, p PaginationModel, args ...interface{}) error
 	Update(tx *gorm.DB, id int, model interface{}, update interface{}) error
 	TotalPage(model interface{}, pageSize int) (int64, error)
 	Delete(model interface{}, id int) error
@@ -199,7 +199,7 @@ func (b BaseRepository) FindOneV2(tx *gorm.DB, model interface{}, options Option
 	return nil
 }
 
-func (b BaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error {
+func (b BaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, p PaginationModel, args ...interface{}) error {
 	db := b.db
 
 	if tx != nil {
@@ -213,7 +213,13 @@ func (b BaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, 
 
 	fmt.Println("args", args)
 
-	err = db.Where(query, args...).Find(model).Error
+	db.Where(query, args...).Find(model)
+
+	if p.Limit > 0 {
+		db = db.Where(query, args...).Find(model).Limit(p.Limit)
+	}
+
+	err = db.Error
 
 	if err != nil {
 		log.Error("Got an error when find Error: ", err)

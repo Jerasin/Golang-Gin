@@ -58,7 +58,7 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 
 		log.Debugf("productIDS = %+v\n", productIDS)
 
-		err = o.BaseRepository.Find(tx, &products, "id IN ? AND ((sale_open_date >= ? AND ? <= sale_close_date) OR (sale_open_date IS NULL AND sale_close_date IS NULL))", productIDS, currentDate, currentDate)
+		err = o.BaseRepository.Find(tx, &products, "id IN ? AND ((sale_open_date >= ? AND ? <= sale_close_date) OR (sale_open_date IS NULL AND sale_close_date IS NULL))", repository.PaginationModel{}, productIDS, currentDate, currentDate)
 		if err != nil {
 			log.Error("Find", err)
 			pkg.PanicException(constant.BadRequest)

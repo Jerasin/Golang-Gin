@@ -58,7 +58,7 @@ func (m *MockBaseRepository) FindOne(tx *gorm.DB, model interface{}, query inter
 	return argsIsExits.Error(0)
 }
 
-func (m *MockBaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error {
+func (m *MockBaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, p repository.PaginationModel, args ...interface{}) error {
 	argsIsExits := m.Called(tx, model, query, args)
 	return argsIsExits.Error(0)
 }
@@ -81,4 +81,18 @@ func (m *MockBaseRepository) Delete(model interface{}, id int) error {
 func (m *MockBaseRepository) FindOneV2(tx *gorm.DB, model interface{}, options repository.Options) error {
 	argsIsExits := m.Called(tx, model, options)
 	return argsIsExits.Error(0)
+}
+
+// ใน mock repository (MockBaseRepository)
+func (m *MockBaseRepository) Transaction(fn func(tx *gorm.DB) error) error {
+	// ใช้ `Called` เพื่อรับการเรียกของฟังก์ชัน
+	args := m.Called(fn)
+
+	// รัน callback (ฟังก์ชันที่รับ tx) ด้วย mock db หรือ nil
+	if fn != nil {
+		tx := new(gorm.DB) // หรือ mock DB ที่ต้องการ
+		return fn(tx)      // รัน callback
+	}
+
+	return args.Error(0)
 }

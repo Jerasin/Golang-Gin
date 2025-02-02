@@ -1,9 +1,13 @@
 package controller
 
 import (
+	"github.com/Jerasin/app/constant"
+	"github.com/Jerasin/app/dto"
+	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/response"
 	"github.com/Jerasin/app/service"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/validator.v2"
 )
 
 type RoleInfoController struct {
@@ -37,8 +41,19 @@ func RoleInfoControllerInit(roleInfoSvc service.RoleInfoServiceInterface) *RoleI
 //
 // @Router /role_infos [post]
 func (p RoleInfoController) CreateRoleInfo(c *gin.Context) {
+	var err error
+	body := dto.RoleInfoCreateRequest{}
+	err = c.ShouldBindJSON(&body)
 
-	p.svc.CreateRoleInfo(c)
+	if err != nil {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	if err = validator.Validate(&body); err != nil {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	p.svc.CreateRoleInfo(c, body)
 }
 
 // @Summary Get RoleInfo List

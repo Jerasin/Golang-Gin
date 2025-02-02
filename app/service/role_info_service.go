@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/Jerasin/app/constant"
+	"github.com/Jerasin/app/dto"
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/repository"
@@ -17,7 +18,7 @@ import (
 )
 
 type RoleInfoServiceInterface interface {
-	CreateRoleInfo(c *gin.Context)
+	CreateRoleInfo(c *gin.Context, body dto.RoleInfoCreateRequest)
 	GetPaginationRoleInfo(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.RoleInfo)
 	GetRoleInfoById(c *gin.Context)
 	UpdateRoleInfo(c *gin.Context)
@@ -34,21 +35,16 @@ func RoleInfoServiceInit(baseRepo repository.BaseRepositoryInterface) *RoleInfoS
 	}
 }
 
-func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context) {
+func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCreateRequest) {
 	fmt.Println("CreateRoleInfo")
 	defer pkg.PanicHandler(c)
 	var err error
-	var body model.RoleInfo
-
-	err = c.ShouldBindJSON(&body)
-	fmt.Println("ShouldBindJSON err", err)
-
-	if err != nil {
-		fmt.Println("ShouldBindJSON error")
-		pkg.PanicException(constant.BadRequest)
+	model := model.RoleInfo{
+		Name:        body.Name,
+		Description: body.Description,
 	}
 
-	fmt.Printf("body = %+v \n", body)
+	fmt.Printf("body = %+v \n", model)
 
 	db := p.BaseRepository.ClientDb()
 
@@ -56,21 +52,37 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context) {
 		pkg.PanicException(constant.BadRequest)
 	}
 
-	// fmt.Printf("db = %+v \n", db)
+	fmt.Printf("db = %+v \n", db)
 
-	db.Transaction(func(tx *gorm.DB) error {
-		fmt.Printf("tx = %+v \n", tx)
-		err := p.BaseRepository.Save(tx, &body)
+	err = db.Transaction(func(tx *gorm.DB) error {
+		fmt.Printf("Transaction Running...")
 
-		if err != nil {
-			pkg.PanicException(constant.BadRequest)
+		p.BaseRepository.Find(tx, &model, "name = ?", repository.PaginationModel{
+			Limit: 1,
+		}, body.Name)
+
+		fmt.Printf("model = %+v \n", model)
+
+		if model.ID != 0 {
+			pkg.PanicException(constant.DataIsExit)
 		}
 
-		c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.CreateResponse()))
+		err := p.BaseRepository.Save(tx, &model)
+
+		if err != nil {
+			fmt.Printf("p.BaseRepository.Save Error")
+			return err
+		}
+
 		return nil
 	})
 
-	fmt.Println("End")
+	if err != nil {
+		fmt.Printf("Transaction error = %+v \n", err)
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.CreateResponse()))
 }
 
 func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.RoleInfo) {

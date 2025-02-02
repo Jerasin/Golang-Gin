@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Jerasin/app/dto"
 	"github.com/Jerasin/app/mocks"
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/repository"
@@ -21,7 +22,8 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 		BaseRepository repository.BaseRepositoryInterface
 	}
 	type args struct {
-		c *gin.Context
+		c    *gin.Context
+		body dto.RoleInfoCreateRequest
 	}
 	tests := []struct {
 		name       string
@@ -32,14 +34,25 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "Success case with valid JSON",
+			name: "Success Insert RoleInfo",
 			fields: fields{
 				BaseRepository: func() repository.BaseRepositoryInterface {
 					mockRepo := new(mocks.MockBaseRepository)
-					mockDb, _ := mocks.NewMockDB()
+					mockDb, sqlMock := mocks.NewMockDB()
 					mockRepo.On("ClientDb").Return(mockDb)
-					mockRepo.On("Transaction").Return(nil)
-					mockRepo.On("Save", mock.Anything, mock.Anything).Return(nil)
+
+					// Mock Start Transaction
+					sqlMock.ExpectBegin()
+
+					// Mock Find
+					mockRepo.On("Find", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+					// Mock Save
+					mockRepo.On("Save", mock.Anything, mock.Anything).Return(nil).Once()
+
+					// Mock Commit
+					sqlMock.ExpectCommit()
+
 					return mockRepo
 				}(),
 			},
@@ -60,35 +73,12 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 
 					return c
 				}(),
+				body: dto.RoleInfoCreateRequest{
+					Name: "Admin",
+				},
 			},
 			wantErr:    false,
 			statusCode: 200,
-		},
-		{
-			name: "Error case with invalid JSON format",
-			fields: fields{
-				BaseRepository: func() repository.BaseRepositoryInterface {
-					mockRepo := new(mocks.MockBaseRepository)
-					mockDb, _ := mocks.NewMockDB()
-					mockRepo.On("ClientDb").Return(mockDb)
-					return mockRepo
-				}(),
-			},
-			args: args{
-				c: func() *gin.Context {
-					gin.SetMode(gin.ReleaseMode)
-					w := httptest.NewRecorder()
-					c, _ := gin.CreateTestContext(w)
-					invalidBody := []byte(`{"Name":"4"`)
-					req, _ := http.NewRequest(http.MethodPost, "/createRoleInfo", bytes.NewReader(invalidBody))
-					req.Header.Set("Content-Type", "application/json")
-					c.Request = req
-
-					return c
-				}(),
-			},
-			wantErr:    true,
-			statusCode: 400,
 		},
 	}
 	for _, tt := range tests {
@@ -96,11 +86,11 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 			p := RoleInfoServiceModel{
 				BaseRepository: tt.fields.BaseRepository,
 			}
-			p.CreateRoleInfo(tt.args.c)
+			p.CreateRoleInfo(tt.args.c, tt.args.body)
 
 			if tt.wantErr {
+				fmt.Printf("Writer Status = %+v", tt.args.c.Writer.Status())
 				if tt.statusCode == tt.args.c.Writer.Status() {
-					fmt.Println("dd", tt.args.c.Writer.Status())
 					assert.NotNil(t, tt.args.c)
 					assert.Equal(t, tt.statusCode, tt.args.c.Writer.Status())
 				} else {
