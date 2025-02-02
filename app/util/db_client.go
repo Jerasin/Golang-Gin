@@ -20,7 +20,8 @@ func InitDbClient() *gorm.DB {
 	DB_NAME := config.GetEnv("DB_NAME", "api")
 	DB_USER := config.GetEnv("DB_USER", "api")
 	DB_PASSWORD := config.GetEnv("DB_PASSWORD", "123456")
-	DB_LOG_ENABLE := config.GetEnv("DB_LOG_ENABLE", "false")
+	// DB_LOG_ENABLE := config.GetEnv("DB_LOG_ENABLE", "false")
+	APP_ENV := config.GetEnv("APP_ENV", "development")
 
 	mysqlInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
 	_, err := fmt.Printf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local\n", DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
@@ -33,8 +34,10 @@ func InitDbClient() *gorm.DB {
 
 	dbLogLevel := logger.Info
 
-	if DB_LOG_ENABLE == "true" {
+	if APP_ENV == "development" {
 		dbLogLevel = logger.Info
+	} else {
+		dbLogLevel = logger.Error
 	}
 
 	fmt.Println("mysqlInfo", mysqlInfo)

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/Jerasin/app/config"
 	"github.com/Jerasin/app/router"
@@ -37,11 +39,11 @@ func main() {
 	baseModule := router.NewBaseModule()
 	app := router.RouterInit(baseModule)
 	docs.SwaggerInfo.BasePath = baseSwaggerPath
-	db := util.InitDbClient()
 	swaggerUiPath := fmt.Sprintf("%s/swagger/*any", baseSwaggerPath)
 	app.GET(swaggerUiPath, ginSwagger.WrapHandler(swaggerfiles.Handler))
 	appInfo := fmt.Sprintf("0.0.0.0:%s", port)
 
+	db := util.InitDbClient()
 	initDataClient := util.InitDataClientInit(db)
 
 	permissionInfos := initDataClient.InitPermissionInfo()
@@ -55,6 +57,25 @@ func main() {
 
 	for _, item := range app.Routes() {
 		println("method:", item.Method, "path:", item.Path)
+	}
+
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Current Directory:", dir)
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		// ถ้า entry เป็น directory, จะพิมพ์ชื่อ folder
+		if file.IsDir() {
+			fmt.Println(file.Name()) // ชื่อ folder
+		}
 	}
 
 	app.Run(appInfo) // listen and serve on 0.0.0.0:8080

@@ -9,7 +9,22 @@ import (
 )
 
 func loadConfig() {
-	err := godotenv.Load()
+	env := os.Getenv("APP_ENV")
+
+	if env == "" {
+		env = "development"
+	}
+
+	var envFile string
+	if env == "production" {
+		envFile = ".env.prod"
+	} else {
+		envFile = ".env"
+	}
+
+	fmt.Printf("Loading config file %s\n", envFile)
+
+	err := godotenv.Load(envFile)
 	if err != nil {
 		log.Fatalf("Error while reading config file %s", err)
 	}

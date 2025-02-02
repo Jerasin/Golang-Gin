@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 
+	"github.com/Jerasin/app/config"
 	"github.com/Jerasin/app/model"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -21,8 +22,16 @@ func InitDataClientInit(db *gorm.DB) *InitDataClient {
 
 func (i InitDataClient) InitPermissionInfo() []model.PermissionInfo {
 	var err error
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
 
-	data := ReadFile("app/default_data/permission_infos.json")
+	if env == "development" {
+		path = "app/default_data/permission_infos.json"
+	} else {
+		path = "default_data/permission_infos.json"
+	}
+
+	data := ReadFile(path)
 
 	var newPermissionInfoList []model.PermissionInfo
 	var permissionInfoNameList []string
@@ -70,8 +79,16 @@ func (i InitDataClient) InitPermissionInfo() []model.PermissionInfo {
 
 func (i InitDataClient) InitRoleInfo(permissionInfos []model.PermissionInfo) []model.RoleInfo {
 	var err error
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
 
-	data := ReadFile("app/default_data/role_infos.json")
+	if env == "development" {
+		path = "app/default_data/role_infos.json"
+	} else {
+		path = "default_data/role_infos.json"
+	}
+
+	data := ReadFile(path)
 
 	var newRoleInfoList []model.RoleInfo
 	var newRoleInfoNameList []string
@@ -117,7 +134,16 @@ func (i InitDataClient) InitRoleInfo(permissionInfos []model.PermissionInfo) []m
 
 func (i InitDataClient) InitUser() []model.User {
 	var err error
-	data := ReadFile("app/default_data/users.json")
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
+
+	if env == "development" {
+		path = "app/default_data/users.json"
+	} else {
+		path = "default_data/users.json"
+	}
+
+	data := ReadFile(path)
 	var newUserList []model.User
 	var newUserNameList []string
 	var newEmailList []string
@@ -210,7 +236,16 @@ func (i InitDataClient) InitUser() []model.User {
 
 func (i InitDataClient) InitProductCategory() []model.ProductCategory {
 	var err error
-	data := ReadFile("app/default_data/product_categories.json")
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
+
+	if env == "development" {
+		path = "app/default_data/product_categories.json"
+	} else {
+		path = "default_data/product_categories.json"
+	}
+
+	data := ReadFile(path)
 	var newProductCategoryList []model.ProductCategory
 	var newProductCategoryNameList []string
 
@@ -252,7 +287,16 @@ func (i InitDataClient) InitProductCategory() []model.ProductCategory {
 
 func (i InitDataClient) InitProduct() []model.Product {
 	var err error
-	data := ReadFile("app/default_data/products.json")
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
+
+	if env == "development" {
+		path = "app/default_data/products.json"
+	} else {
+		path = "default_data/products.json"
+	}
+
+	data := ReadFile(path)
 	var newProductList []model.Product
 	var newProductNameList []string
 

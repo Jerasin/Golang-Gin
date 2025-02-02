@@ -2,6 +2,8 @@
 # STEP 1 build executable binary
 ############################
 FROM golang:alpine AS builder
+
+
 # Install git.
 # Git is required for fetching the dependencies.
 RUN apk update && apk add --no-cache 'git=~2'
@@ -29,8 +31,11 @@ WORKDIR /
 COPY --from=builder /main /main
 
 # Copy the .env file from the builder stage
-COPY --from=builder /.env /.env
+COPY --from=builder /.env.prod /.env.prod
 
+COPY --from=builder /app/default_data /default_data
+
+ENV APP_ENV production
 ENV GIN_MODE release
 EXPOSE 3000
 # Run the Go Gin binary.
