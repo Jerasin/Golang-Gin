@@ -107,14 +107,19 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 		Field:     fields,
 		Dest:      permissionInfos,
 	}
+
+	fmt.Println("Before Pagination")
 	data, err := p.BaseRepository.Pagination(paginationModel, nil)
+	fmt.Println("After Pagination data", data)
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
 		pkg.PanicException(constant.InvalidRequest)
 	}
 
+	fmt.Println("Before TotalPage")
 	totalPage, err := p.BaseRepository.TotalPage(&permissionInfos, pageSize)
+	fmt.Println("After TotalPage")
 	if err != nil {
 		log.Error("Count Data Error: ", err)
 		pkg.PanicException(constant.UnknownError)
