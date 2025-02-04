@@ -53,7 +53,7 @@ func CustomPanicException(responseKey constant.ResponseStatus, message string) {
 func PanicHandler(c *gin.Context) {
 	if err := recover(); err != nil {
 
-		fmt.Printf("PanicHandler = %+v  \n", err)
+		log.Errorf("PanicHandler = %+v  \n", err)
 
 		str := fmt.Sprint(err)
 		strArr := strings.Split(str, ":")
@@ -61,7 +61,7 @@ func PanicHandler(c *gin.Context) {
 		key := strArr[0]
 		msg := strings.Trim(strArr[1], " ")
 
-		fmt.Printf("key = %+v  \n", key)
+		log.Errorf("key = %+v  \n", key)
 
 		switch key {
 		case
@@ -78,11 +78,9 @@ func PanicHandler(c *gin.Context) {
 			c.Abort()
 		case
 			constant.DataIsExit.GetResponseStatus():
-			fmt.Println("DataIsExit")
 			c.JSON(http.StatusBadRequest, BuildResponse_(key, msg, Null()))
 			c.Abort()
 		default:
-			fmt.Println("Default")
 			c.JSON(http.StatusInternalServerError, BuildResponse_(key, msg, Null()))
 			c.Abort()
 		}

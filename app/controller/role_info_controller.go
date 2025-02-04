@@ -7,6 +7,7 @@ import (
 	"github.com/Jerasin/app/response"
 	"github.com/Jerasin/app/service"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/validator.v2"
 )
 
@@ -41,6 +42,8 @@ func RoleInfoControllerInit(roleInfoSvc service.RoleInfoServiceInterface) *RoleI
 //
 // @Router /role_infos [post]
 func (p RoleInfoController) CreateRoleInfo(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+
 	var err error
 	body := dto.RoleInfoCreateRequest{}
 	err = c.ShouldBindJSON(&body)
@@ -105,7 +108,22 @@ func (p RoleInfoController) GetRoleInfoById(c *gin.Context) {
 //
 // @Router /role_infos/{roleInfoID} [put]
 func (p RoleInfoController) UpdateRoleInfoData(c *gin.Context) {
-	p.svc.UpdateRoleInfo(c)
+	defer pkg.PanicHandler(c)
+	var err error
+	body := dto.UpdateRoleInfoCreateRequest{}
+	err = c.ShouldBindJSON(&body)
+
+	if err != nil {
+		log.Info("Error when binding data")
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	if err = validator.Validate(&body); err != nil {
+		log.Info("Error when validating data")
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	p.svc.UpdateRoleInfo(c, body)
 }
 
 // @Summary Delete RoleInfo By Id

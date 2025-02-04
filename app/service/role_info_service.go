@@ -1,8 +1,8 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/Jerasin/app/constant"
@@ -10,7 +10,6 @@ import (
 	"github.com/Jerasin/app/model"
 	"github.com/Jerasin/app/pkg"
 	"github.com/Jerasin/app/repository"
-	"github.com/Jerasin/app/request"
 	"github.com/Jerasin/app/response"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -21,7 +20,7 @@ type RoleInfoServiceInterface interface {
 	CreateRoleInfo(c *gin.Context, body dto.RoleInfoCreateRequest)
 	GetPaginationRoleInfo(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.RoleInfo)
 	GetRoleInfoById(c *gin.Context)
-	UpdateRoleInfo(c *gin.Context)
+	UpdateRoleInfo(c *gin.Context, body dto.UpdateRoleInfoCreateRequest)
 	DeleteRoleInfo(c *gin.Context)
 }
 
@@ -36,7 +35,6 @@ func RoleInfoServiceInit(baseRepo repository.BaseRepositoryInterface) *RoleInfoS
 }
 
 func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCreateRequest) {
-	fmt.Println("CreateRoleInfo")
 	defer pkg.PanicHandler(c)
 	var err error
 	model := model.RoleInfo{
@@ -110,29 +108,25 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 
 	log.Infof("Dest = %+v \n", roleInfos)
 	log.Infof("paginationModel = %+v \n", paginationModel)
-	fmt.Println("Before Pagination")
+
 	data, err := p.BaseRepository.Pagination(paginationModel, nil)
-	fmt.Println("After Pagination data", data)
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
 		pkg.PanicException(constant.InvalidRequest)
 	}
 
-	fmt.Println("Before TotalPage")
 	totalPage, err := p.BaseRepository.TotalPage(&roleInfos, pageSize)
-	fmt.Println("After TotalPage", totalPage)
+
 	if err != nil {
 		log.Error("Count Data Error: ", err)
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	fmt.Println("data", data)
-
 	var res []response.RoleInfo
 	pkg.ModelDump(&res, data)
 
-	fmt.Println("res", res)
+	log.Info("res", res)
 
 	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
 }
@@ -155,28 +149,34 @@ func (p RoleInfoServiceModel) GetRoleInfoById(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, res))
 }
 
-func (p RoleInfoServiceModel) UpdateRoleInfo(c *gin.Context) {
+func (p RoleInfoServiceModel) UpdateRoleInfo(c *gin.Context, body dto.UpdateRoleInfoCreateRequest) {
 	defer pkg.PanicHandler(c)
 
 	p.BaseRepository.ClientDb().Transaction(func(tx *gorm.DB) error {
 		var err error
 		roleInfoID, _ := strconv.Atoi(c.Param("roleInfoID"))
-		var request request.UpdateRoleInfo
+		var roleInfo model.RoleInfo
+		var updateData = make(map[string]interface{})
 
-		err = c.ShouldBindJSON(&request)
-		if err != nil {
-			pkg.PanicException(constant.BadRequest)
+		val := reflect.ValueOf(body)
+		for i := 0; i < val.NumField(); i++ {
+			field := val.Field(i)
+			if field.Kind() == reflect.String && field.String() != "" { // ตรวจสอบว่าไม่ใช่ string ว่าง
+				fieldName := val.Type().Field(i).Name
+				updateData[fieldName] = field.String()
+			}
 		}
 
-		var roleInfo model.RoleInfo
 		err = p.BaseRepository.FindOne(tx, &roleInfo, "id = ?", roleInfoID)
 		if err != nil {
 			log.Error("Happened error when get data from database. Error", err)
 			pkg.PanicException(constant.DataNotFound)
 		}
 
-		err = p.BaseRepository.Update(tx, roleInfoID, &roleInfo, &request)
+		err = p.BaseRepository.Update(tx, roleInfoID, &roleInfo, &updateData)
 		if err != nil {
+
+			log.Error("Happened error when get data from database. Error", err)
 			pkg.PanicException(constant.BadRequest)
 		}
 
