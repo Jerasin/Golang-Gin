@@ -44,7 +44,7 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 		Description: body.Description,
 	}
 
-	// fmt.Printf("body = %+v \n", model)
+	// log.Infof("body = %+v \n", model)
 
 	db := p.BaseRepository.ClientDb()
 
@@ -52,16 +52,16 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 		pkg.PanicException(constant.BadRequest)
 	}
 
-	// fmt.Printf("db = %+v \n", db)
+	// log.Infof("db = %+v \n", db)
 
 	err = db.Transaction(func(tx *gorm.DB) error {
-		// fmt.Printf("Transaction Running...")
+		// log.Infof("Transaction Running...")
 
 		p.BaseRepository.Find(tx, &model, "name = ?", repository.PaginationModel{
 			Limit: 1,
 		}, body.Name)
 
-		fmt.Printf("model = %+v \n", model)
+		log.Infof("model = %+v \n", model)
 
 		if model.ID != 0 {
 			pkg.PanicException(constant.DataIsExit)
@@ -70,7 +70,7 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 		err := p.BaseRepository.Save(tx, &model)
 
 		if err != nil {
-			fmt.Printf("p.BaseRepository.Save Error")
+			log.Infof("p.BaseRepository.Save Error")
 			return err
 		}
 
@@ -78,7 +78,7 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 	})
 
 	if err != nil {
-		fmt.Printf("Transaction error = %+v \n", err)
+		log.Infof("Transaction error = %+v \n", err)
 		pkg.PanicException(constant.BadRequest)
 	}
 
@@ -88,15 +88,15 @@ func (p RoleInfoServiceModel) CreateRoleInfo(c *gin.Context, body dto.RoleInfoCr
 func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.RoleInfo) {
 	defer pkg.PanicHandler(c)
 
-	log.Info("start to execute program get list permissionInfo")
+	log.Info("start to execute program get list roleInfo")
 
 	log.Info("start to execute get all data user")
 	offset := (page - 1) * pageSize
 	limit := pageSize
 	fields := DbHandleSelectField(field)
-	fmt.Println("query", search)
-	fmt.Println("fields", fields)
-	var permissionInfos []model.RoleInfo
+	// fmt.Println("query", search)
+	// fmt.Println("fields", fields)
+	roleInfos := []model.RoleInfo{}
 
 	paginationModel := repository.PaginationModel{
 		Limit:     limit,
@@ -105,9 +105,11 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 		SortField: sortField,
 		SortValue: sortValue,
 		Field:     fields,
-		Dest:      permissionInfos,
+		Dest:      roleInfos,
 	}
 
+	log.Infof("Dest = %+v \n", roleInfos)
+	log.Infof("paginationModel = %+v \n", paginationModel)
 	fmt.Println("Before Pagination")
 	data, err := p.BaseRepository.Pagination(paginationModel, nil)
 	fmt.Println("After Pagination data", data)
@@ -118,8 +120,8 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 	}
 
 	fmt.Println("Before TotalPage")
-	totalPage, err := p.BaseRepository.TotalPage(&permissionInfos, pageSize)
-	fmt.Println("After TotalPage")
+	totalPage, err := p.BaseRepository.TotalPage(&roleInfos, pageSize)
+	fmt.Println("After TotalPage", totalPage)
 	if err != nil {
 		log.Error("Count Data Error: ", err)
 		pkg.PanicException(constant.UnknownError)
@@ -129,6 +131,8 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 
 	var res []response.RoleInfo
 	pkg.ModelDump(&res, data)
+
+	fmt.Println("res", res)
 
 	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
 }

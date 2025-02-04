@@ -22,7 +22,6 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 		BaseRepository repository.BaseRepositoryInterface
 	}
 	type args struct {
-		// c    *gin.Context
 		body dto.RoleInfoCreateRequest
 	}
 	tests := []struct {
@@ -58,22 +57,6 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 				}(),
 			},
 			args: args{
-				// c: func() *gin.Context {
-				// 	gin.SetMode(gin.ReleaseMode)
-				// 	w := httptest.NewRecorder()
-				// 	c, _ := gin.CreateTestContext(w)
-
-				// 	roleInfo := model.RoleInfo{
-				// 		Name: "Admin",
-				// 	}
-
-				// 	body, _ := json.Marshal(roleInfo)
-				// 	req, _ := http.NewRequest(http.MethodPost, "/createRoleInfo", bytes.NewReader(body))
-				// 	req.Header.Set("Content-Type", "application/json")
-				// 	c.Request = req
-
-				// 	return c
-				// }(),
 				body: dto.RoleInfoCreateRequest{
 					Name: "Admin",
 				},
@@ -117,22 +100,6 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 				}(),
 			},
 			args: args{
-				// c: func() *gin.Context {
-				// 	gin.SetMode(gin.ReleaseMode)
-				// 	w := httptest.NewRecorder()
-				// 	c, _ := gin.CreateTestContext(w)
-
-				// 	roleInfo := model.RoleInfo{
-				// 		Name: "Admin",
-				// 	}
-
-				// 	body, _ := json.Marshal(roleInfo)
-				// 	req, _ := http.NewRequest(http.MethodPost, "/createRoleInfo", bytes.NewReader(body))
-				// 	req.Header.Set("Content-Type", "application/json")
-				// 	c.Request = req
-
-				// 	return c
-				// }(),
 				body: dto.RoleInfoCreateRequest{
 					Name: "Admin",
 				},
@@ -151,7 +118,6 @@ func TestRoleInfoServiceModel_CreateRoleInfo(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
-			// c.Request = tt.args.c.Request
 
 			p.CreateRoleInfo(c, tt.args.body)
 			var responseBody map[string]interface{}
@@ -187,7 +153,6 @@ func TestRoleInfoServiceModel_GetPaginationRoleInfo(t *testing.T) {
 		BaseRepository repository.BaseRepositoryInterface
 	}
 	type args struct {
-		c         *gin.Context
 		page      int
 		pageSize  int
 		search    string
@@ -209,24 +174,34 @@ func TestRoleInfoServiceModel_GetPaginationRoleInfo(t *testing.T) {
 			fields: fields{
 				BaseRepository: func() repository.BaseRepositoryInterface {
 					mockRepo := new(mocks.MockBaseRepository)
-					roleInfoList := []model.RoleInfo{
-						{
-							BaseModel: model.BaseModel{
-								ID: 1,
-							},
-							Name: "Admin",
-						}, {
-							BaseModel: model.BaseModel{
-								ID: 2,
-							},
-							Name: "User",
+					mockDest := []model.RoleInfo{
+						// {BaseModel: model.BaseModel{ID: 1}, Name: "Admin"},
+						// {BaseModel: model.BaseModel{ID: 2}, Name: "User"},
+					}
+					mockData := []model.RoleInfo{
+						{BaseModel: model.BaseModel{ID: 1}, Name: "Admin"},
+						{BaseModel: model.BaseModel{ID: 2}, Name: "User"},
+					}
+					// mockData := []model.RoleInfo(nil)
+					var e []interface{}
+
+					paginationModel := repository.PaginationModel{
+						Limit:     10,
+						Offset:    0,
+						Search:    "Admin",
+						SortField: "name",
+						SortValue: "asc",
+						Field: map[string]interface{}{
+							"description": "",
+							"name":        "",
+							"id":          "",
 						},
+						Dest: mockDest,
 					}
 
-					// Mock Find
-					mockRepo.On("Pagination", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(roleInfoList, nil).Once()
+					mockRepo.On("Pagination", paginationModel, nil, e).Return(mockData, nil)
 
-					mockRepo.On("TotalPage", mock.Anything, mock.Anything).Return(2, nil).Once()
+					mockRepo.On("TotalPage", &mockDest, 10).Return(int64(12), nil)
 
 					return mockRepo
 				}(),
@@ -237,15 +212,14 @@ func TestRoleInfoServiceModel_GetPaginationRoleInfo(t *testing.T) {
 				search:    "Admin",
 				sortField: "name",
 				sortValue: "asc",
-				field: response.RoleInfo{
-					ID: 1,
-				},
+				field:     response.RoleInfo{},
 			},
 			wantErr:    false,
 			statusCode: 200,
-			expectedResponse: map[string]interface{}{"response_key": "SUCCESS", "data": map[string]interface{}{
-				"message": "create success",
-			}, "response_message": "Success"},
+			expectedResponse: map[string]interface{}{"response_key": "SUCCESS", "data": []interface{}{
+				map[string]interface{}{"id": float64(1), "name": "Admin", "description": ""},
+				map[string]interface{}{"id": float64(2), "name": "User", "description": ""},
+			}, "response_message": "Success", "page": float64(1), "pageSize": float64(10), "totalPage": float64(12)},
 		},
 	}
 	for _, tt := range tests {
@@ -258,7 +232,7 @@ func TestRoleInfoServiceModel_GetPaginationRoleInfo(t *testing.T) {
 			c, _ := gin.CreateTestContext(w)
 			// c.Request = tt.args.c.Request
 
-			p.GetPaginationRoleInfo(tt.args.c, tt.args.page, tt.args.pageSize, tt.args.search, tt.args.sortField, tt.args.sortValue, tt.args.field)
+			p.GetPaginationRoleInfo(c, tt.args.page, tt.args.pageSize, tt.args.search, tt.args.sortField, tt.args.sortValue, tt.args.field)
 
 			var responseBody map[string]interface{}
 			err := json.Unmarshal(w.Body.Bytes(), &responseBody)
@@ -282,6 +256,8 @@ func TestRoleInfoServiceModel_GetPaginationRoleInfo(t *testing.T) {
 
 				assert.Equal(t, http.StatusOK, c.Writer.Status())
 			}
+
+			assert.Equal(t, tt.expectedResponse, responseBody)
 		})
 	}
 }
