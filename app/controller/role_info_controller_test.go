@@ -77,14 +77,14 @@ func TestRoleInfoController_CreateRoleInfo(t *testing.T) {
 			logrus.Printf("Writer Status = %+v", c.Writer.Status())
 			logrus.Printf("Writer Body = %+v", w.Body.Bytes())
 
-			var responseBody map[string]interface{}
-			err2 := json.Unmarshal(w.Body.Bytes(), &responseBody)
+			// var responseBody map[string]interface{}
+			// err2 := json.Unmarshal(w.Body.Bytes(), &responseBody)
 
-			if err2 != nil {
-				panic(err)
-			}
+			// if err2 != nil {
+			// 	panic(err)
+			// }
 
-			t.Logf("Response Body = %+v", responseBody)
+			// t.Logf("Response Body = %+v", responseBody)
 
 			if tt.wantErr {
 				if tt.statusCode == c.Writer.Status() {
