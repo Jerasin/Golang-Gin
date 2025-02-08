@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RUN_TEST_MODE: "prod"
+
 jobs:
   test:
     runs-on: ubuntu-latest

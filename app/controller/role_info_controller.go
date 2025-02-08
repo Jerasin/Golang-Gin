@@ -48,6 +48,8 @@ func (p RoleInfoController) CreateRoleInfo(c *gin.Context) {
 	body := dto.RoleInfoCreateRequest{}
 	err = c.ShouldBindJSON(&body)
 
+	log.Infof("body = %+v \n", body)
+
 	if err != nil {
 		pkg.PanicException(constant.BadRequest)
 	}
@@ -56,6 +58,7 @@ func (p RoleInfoController) CreateRoleInfo(c *gin.Context) {
 		pkg.PanicException(constant.BadRequest)
 	}
 
+	log.Infoln("Before CreateRoleInfo")
 	p.svc.CreateRoleInfo(c, body)
 }
 
