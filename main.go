@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"os"
 	"sync"
 	"time"
@@ -34,7 +35,6 @@ import (
 
 func main() {
 	fmt.Println("Main Start")
-
 	config.EnvConfig()
 	port := config.GetEnv("PORT", "3000")
 	baseSwaggerPath := config.GetEnv("BASE_SWAGGER_PATH", "/api")

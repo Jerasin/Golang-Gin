@@ -40,7 +40,7 @@ func (m *MockBaseRepository) ClientDb() *gorm.DB {
 
 func (m *MockBaseRepository) Pagination(p repository.PaginationModel, query interface{}, args ...interface{}) (interface{}, error) {
 	argsPagination := m.Called(p, query, args)
-	return argsPagination.Get(0), argsPagination.Error(0)
+	return argsPagination.Get(0), argsPagination.Error(1)
 }
 
 func (m *MockBaseRepository) Save(tx *gorm.DB, model interface{}) error {

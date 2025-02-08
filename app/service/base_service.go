@@ -1,8 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"reflect"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func DbHandleSelectField(field any) map[string]interface{} {
@@ -16,7 +17,7 @@ func DbHandleSelectField(field any) map[string]interface{} {
 		jsonTag := field.Tag.Get("json")
 
 		// Print the json tag value
-		fmt.Printf("Field %d: %s\n", i+1, jsonTag)
+		log.Infof("Field %d: %s\n", i+1, jsonTag)
 		result[jsonTag] = ""
 	}
 
