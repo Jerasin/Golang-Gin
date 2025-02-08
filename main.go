@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/Jerasin/app/config"
 	"github.com/Jerasin/app/router"
@@ -46,12 +48,39 @@ func main() {
 	db := util.InitDbClient()
 	initDataClient := util.InitDataClientInit(db)
 
-	permissionInfos := initDataClient.InitPermissionInfo()
-	initDataClient.InitRoleInfo(permissionInfos)
-	initDataClient.InitUser()
-	initDataClient.InitProductCategory()
-	initDataClient.InitProduct()
+	now := time.Now()
 
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		permissionInfos := initDataClient.InitPermissionInfo()
+		initDataClient.InitRoleInfo(permissionInfos)
+	}()
+
+	go func() {
+		defer wg.Done()
+		initDataClient.InitUser()
+	}()
+
+	go func() {
+		defer wg.Done()
+		initDataClient.InitProductCategory()
+		initDataClient.InitProduct()
+	}()
+
+	wg.Wait()
+
+	// permissionInfos := initDataClient.InitPermissionInfo()
+	// initDataClient.InitRoleInfo(permissionInfos)
+	// initDataClient.InitUser()
+	// initDataClient.InitProductCategory()
+	// initDataClient.InitProduct()
+
+	endProcess := time.Now()
+
+	fmt.Println("Process Time : ", endProcess.Sub(now).String())
 	fmt.Println("swaggerUiPath", swaggerUiPath)
 	fmt.Println("appInfo", appInfo)
 
