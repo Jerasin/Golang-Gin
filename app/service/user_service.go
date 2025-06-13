@@ -114,13 +114,20 @@ func (u UserServiceModel) GetUserById(c *gin.Context) {
 	userID, _ := strconv.Atoi(c.Param("userID"))
 
 	var user model.User
+	var wallets []response.Wallet
 	err := u.BaseRepository.FindOne(nil, &user, "id = ?", userID)
 	if err != nil {
 		log.Error("Happened error when get data from database. Error", err)
 		pkg.PanicException(constant.DataNotFound)
 	}
 
-	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, user))
+	err = u.BaseRepository.Find(nil, &wallets, "user_id = ?", repository.PaginationModel{}, userID)
+	if err != nil {
+		log.Error("Happened error when get data from database. Error", err)
+		pkg.PanicException(constant.DataNotFound)
+	}
+
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, map[string]any{"user": user, "wallets": wallets}))
 }
 
 func (u UserServiceModel) GetPaginationUser(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.User) {

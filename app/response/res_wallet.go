@@ -9,6 +9,7 @@ type WalletDetail struct {
 }
 
 type Wallet struct {
+	Id     int    `json:"id"`
 	Name   string `json:"name"`
 	Token  string `json:"token"`
 	Uuid   string `json:"uuid"`

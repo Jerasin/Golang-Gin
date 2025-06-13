@@ -76,7 +76,7 @@ func (authSvc AuthServiceModel) Login(c *gin.Context, loginDto dto.LoginDtoReque
 
 	jwt := pkg.NewAuthService()
 
-	token := jwt.GenerateToken(user.Username)
+	token := jwt.GenerateToken(user.Username, user.ID)
 
 	response := dto.LoginDtoDataResponse{
 		Token:        token,
@@ -117,7 +117,13 @@ func (authSvc AuthServiceModel) RefreshToken(c *gin.Context) {
 	fmt.Println("claims", claims["username"])
 	fmt.Printf("username %T\n", username)
 
-	refreshToken := jwtService.GenerateToken(username)
+	ID, ok := claims["ID"].(uint)
+	if !ok {
+		// Handle case where username is not a string
+		panic("username claim is not a string")
+	}
+
+	refreshToken := jwtService.GenerateToken(username, ID)
 
 	var response = make(map[string]interface{})
 	response["refreshToken"] = refreshToken

@@ -62,6 +62,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		initDataClient.InitUser()
+		initDataClient.InitWallet()
 	}()
 
 	go func() {

@@ -11,7 +11,7 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(username string) string
+	GenerateToken(username string, ID uint) string
 	ValidateToken(token string) (*jwt.Token, error)
 	GenerateRefreshToken(username string) string
 }
@@ -23,6 +23,7 @@ type jwtServices struct {
 
 type authCustomClaims struct {
 	Username string `json:"username"`
+	ID       uint   `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -64,7 +65,7 @@ func (service *jwtServices) GenerateRefreshToken(username string) string {
 	return rt
 }
 
-func (service *jwtServices) GenerateToken(username string) string {
+func (service *jwtServices) GenerateToken(username string, ID uint) string {
 	config.EnvConfig()
 	JWT_EXPIRE_MINUTE := config.GetEnv("JWT_EXPIRE_MINUTE", "15")
 
@@ -76,6 +77,7 @@ func (service *jwtServices) GenerateToken(username string) string {
 
 	claims := &authCustomClaims{
 		username,
+		ID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * time.Duration(expire_time)).Unix(),
 			Issuer:    service.issure,

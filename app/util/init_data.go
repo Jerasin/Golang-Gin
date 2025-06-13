@@ -377,3 +377,81 @@ func (i InitDataClient) InitProduct() []model.Product {
 	}
 
 }
+
+func (i InitDataClient) InitWallet() []model.Wallet {
+	var err error
+	var path string
+	env := config.GetEnv("APP_ENV", "development")
+
+	if env == "development" {
+		path = "app/default_data/wallet.json"
+	} else {
+		path = "default_data/wallet.json"
+	}
+
+	data := ReadFile(path)
+	var newWalletList []model.Wallet
+	var newWalletNameList []string
+
+	for _, item := range data.([]map[string]any) {
+		name, ok := item["name"].(string)
+		if !ok {
+			fmt.Println("err", ok)
+		}
+		fmt.Println("name", name)
+
+		token, ok := item["token"].(string)
+		if !ok {
+			fmt.Println("err", ok)
+		}
+		fmt.Println("token", token)
+
+		uuid, ok := item["uuid"].(string)
+		if !ok {
+			fmt.Println("err", ok)
+		}
+		fmt.Println("uuid", uuid)
+
+		userID, ok := item["user_id"].(float64)
+		if !ok {
+			fmt.Println("err", ok)
+		}
+		fmt.Println("userID", userID)
+
+		value, ok := item["value"].(float64)
+		if !ok {
+			fmt.Println("err", ok)
+		}
+		fmt.Println("value", value)
+
+		newWallet := model.Wallet{
+			Name:   name,
+			Token:  token,
+			Uuid:   uuid,
+			UserID: uint(userID),
+			Value:  value,
+		}
+		newWalletList = append(newWalletList, newWallet)
+		newWalletNameList = append(newWalletNameList, name)
+	}
+
+	var walletList []model.Wallet
+	err = i.db.Where("name IN ?", newWalletNameList).Find(&walletList).Error
+	if err != nil {
+		log.Error(err)
+		panic("Find Error")
+	}
+
+	if len(newWalletList) != len(walletList) {
+		err = i.db.Create(&newWalletList).Error
+		if err != nil {
+			log.Error(err)
+			panic("Find Error")
+		}
+
+		return newWalletList
+	} else {
+		return walletList
+	}
+
+}

@@ -1,6 +1,8 @@
 package router
 
 import (
+	"time"
+
 	"github.com/Jerasin/app/middleware"
 	"github.com/Jerasin/app/module"
 	"github.com/gin-contrib/cors"
@@ -46,7 +48,14 @@ func RouterInit(init BaseModuleInit) *gin.Engine {
 	router.SetTrustedProxies(nil)
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(cors.Default())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // ระบุ origin ที่ต้องการอนุญาต
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	api := router.Group("/api")
 
@@ -65,6 +74,7 @@ func RouterInit(init BaseModuleInit) *gin.Engine {
 	auth.POST("/refresh/token", init.AuthModule.AuthCtrl.RefreshToken)
 
 	product := api.Group("/products")
+	product.Use(middleware.AuthorizeJwt())
 	product.POST("", init.ProductModule.ProductCtrl.CreateProduct)
 	product.GET("", init.ProductModule.ProductCtrl.GetAllProducts)
 	product.GET("/:productID", init.ProductModule.ProductCtrl.GetProductById)
