@@ -51,16 +51,12 @@ func main() {
 	now := time.Now()
 
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
 		permissionInfos := initDataClient.InitPermissionInfo()
-		initDataClient.InitRoleInfo(permissionInfos)
-	}()
-
-	go func() {
-		defer wg.Done()
+		initDataClient.InitRoleInfo(permissionInfos, []string{"user"})
 		initDataClient.InitUser()
 		initDataClient.InitWallet()
 	}()

@@ -966,6 +966,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/info": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get user info",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userID}": {
             "get": {
                 "security": [
@@ -1509,9 +1531,9 @@ const docTemplate = `{
                 "amount",
                 "name",
                 "price",
-                "product_category_id",
-                "sale_close_date",
-                "sale_open_date"
+                "productCategoryId",
+                "saleCloseDate",
+                "saleOpenDate"
             ],
             "properties": {
                 "amount": {
@@ -1522,6 +1544,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "apple"
                 },
+                "imgUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
@@ -1530,15 +1555,15 @@ const docTemplate = `{
                     "type": "number",
                     "example": 200
                 },
-                "product_category_id": {
+                "productCategoryId": {
                     "type": "integer",
                     "example": 1
                 },
-                "sale_close_date": {
+                "saleCloseDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "sale_open_date": {
+                "saleOpenDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 }
@@ -1605,6 +1630,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "apple"
                 },
+                "imgUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
@@ -1617,15 +1645,15 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "sale_close_date": {
+                "saleCloseDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "sale_open_date": {
+                "saleOpenDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1686,6 +1714,7 @@ const docTemplate = `{
                 "email",
                 "fullname",
                 "password",
+                "roleInfoId",
                 "username"
             ],
             "properties": {
@@ -1861,9 +1890,15 @@ const docTemplate = `{
         "response.Product": {
             "type": "object",
             "required": [
-                "name"
+                "amount",
+                "name",
+                "price"
             ],
             "properties": {
+                "amount": {
+                    "type": "integer",
+                    "example": 10
+                },
                 "description": {
                     "type": "string",
                     "example": "apple"
@@ -1871,9 +1906,16 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "img_url": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 200
                 }
             }
         },
@@ -2011,6 +2053,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "userId": {
+                    "type": "integer"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -2045,6 +2090,9 @@ const docTemplate = `{
         "response.Wallet": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },

@@ -108,8 +108,8 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 		options := repository.Options{
 			Query:     "username = ? AND wallets.id = ?",
 			QueryArgs: []interface{}{username, walletID},
-			Join:      "LEFT JOIN wallets ON users.id = wallets.user_id ",
-			Preload:   "Wallets",
+			Joins:     []string{"LEFT JOIN wallets ON users.id = wallets.user_id "},
+			Preloads:  []string{"Wallets"},
 		}
 
 		o.BaseRepository.FindOneV2(tx, &user, options)

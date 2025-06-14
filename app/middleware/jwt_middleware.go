@@ -7,6 +7,7 @@ import (
 	"github.com/Jerasin/app/pkg"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/godump"
 )
 
 func AuthorizeJwt() gin.HandlerFunc {
@@ -25,7 +26,16 @@ func AuthorizeJwt() gin.HandlerFunc {
 
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
-			fmt.Println("claims", claims)
+
+			godump.Dump(claims)
+
+			userID, ok := claims["id"].(float64)
+			if !ok {
+				pkg.PanicException(constant.BadRequest)
+			}
+			godump.Dump(userID)
+
+			c.Set("userID", uint(userID))
 		} else {
 			fmt.Println("testing")
 			fmt.Println(err)

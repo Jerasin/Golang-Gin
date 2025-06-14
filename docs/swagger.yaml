@@ -182,28 +182,30 @@ definitions:
       description:
         example: apple
         type: string
+      imgUrl:
+        type: string
       name:
         example: apple
         type: string
       price:
         example: 200
         type: number
-      product_category_id:
+      productCategoryId:
         example: 1
         type: integer
-      sale_close_date:
+      saleCloseDate:
         example: "2021-12-26T00:00:00Z"
         type: string
-      sale_open_date:
+      saleOpenDate:
         example: "2021-12-26T00:00:00Z"
         type: string
     required:
     - amount
     - name
     - price
-    - product_category_id
-    - sale_close_date
-    - sale_open_date
+    - productCategoryId
+    - saleCloseDate
+    - saleOpenDate
     type: object
   request.ProductCategoryRequest:
     properties:
@@ -245,6 +247,8 @@ definitions:
       description:
         example: apple
         type: string
+      imgUrl:
+        type: string
       name:
         example: apple
         type: string
@@ -254,13 +258,13 @@ definitions:
       product_category_id:
         example: 1
         type: integer
-      sale_close_date:
+      saleCloseDate:
         example: "2021-12-26T00:00:00Z"
         type: string
-      sale_open_date:
+      saleOpenDate:
         example: "2021-12-26T00:00:00Z"
         type: string
-      updated_at:
+      updatedAt:
         type: string
     type: object
   request.UpdateProductCategory:
@@ -321,6 +325,7 @@ definitions:
     - email
     - fullname
     - password
+    - roleInfoId
     - username
     type: object
   request.WalletRequest:
@@ -422,16 +427,26 @@ definitions:
     type: object
   response.Product:
     properties:
+      amount:
+        example: 10
+        type: integer
       description:
         example: apple
         type: string
       id:
         type: integer
+      img_url:
+        type: string
       name:
         example: apple
         type: string
+      price:
+        example: 200
+        type: number
     required:
+    - amount
     - name
+    - price
     type: object
   response.ProductCategory:
     properties:
@@ -521,6 +536,8 @@ definitions:
         type: string
       id:
         type: integer
+      userId:
+        type: integer
       username:
         type: string
     type: object
@@ -543,6 +560,8 @@ definitions:
     type: object
   response.Wallet:
     properties:
+      id:
+        type: integer
       name:
         type: string
       token:
@@ -1223,6 +1242,19 @@ paths:
       security:
       - Bearer: []
       summary: Update User By Id
+      tags:
+      - User
+  /users/info:
+    get:
+      description: Get user info
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.User'
+      security:
+      - Bearer: []
+      summary: Get User Info
       tags:
       - User
   /wallets:

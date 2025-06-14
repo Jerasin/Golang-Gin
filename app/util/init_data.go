@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/Jerasin/app/config"
 	"github.com/Jerasin/app/model"
@@ -77,7 +78,7 @@ func (i InitDataClient) InitPermissionInfo() []model.PermissionInfo {
 
 }
 
-func (i InitDataClient) InitRoleInfo(permissionInfos []model.PermissionInfo) []model.RoleInfo {
+func (i InitDataClient) InitRoleInfo(permissionInfos []model.PermissionInfo, ignoreName []string) []model.RoleInfo {
 	var err error
 	var path string
 	env := config.GetEnv("APP_ENV", "development")
@@ -100,10 +101,19 @@ func (i InitDataClient) InitRoleInfo(permissionInfos []model.PermissionInfo) []m
 		}
 		fmt.Println("name", name)
 
-		newRoleInfo := model.RoleInfo{
-			Name:            name,
-			PermissionInfos: permissionInfos,
+		var newRoleInfo model.RoleInfo
+
+		if slices.Contains(ignoreName, name) {
+			newRoleInfo = model.RoleInfo{
+				Name: name,
+			}
+		} else {
+			newRoleInfo = model.RoleInfo{
+				Name:            name,
+				PermissionInfos: permissionInfos,
+			}
 		}
+
 		newRoleInfoList = append(newRoleInfoList, newRoleInfo)
 		newRoleInfoNameList = append(newRoleInfoNameList, name)
 	}

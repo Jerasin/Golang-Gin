@@ -110,9 +110,9 @@ func (p WalletServiceModel) GetWalletById(c *gin.Context) {
 	var wallet model.Wallet
 	options := repository.Options{
 		Query:     "wallets.id = ?",
-		QueryArgs: []interface{}{walletID},
-		Join:      "LEFT JOIN users ON users.id = wallets.user_id ",
-		Preload:   "User",
+		QueryArgs: []any{walletID},
+		Joins:     []string{"LEFT JOIN users ON users.id = wallets.user_id "},
+		Preloads:  []string{"User"},
 	}
 	err := p.BaseRepository.FindOneV2(nil, &wallet, options)
 	if err != nil {

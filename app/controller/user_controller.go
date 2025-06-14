@@ -12,6 +12,7 @@ type UserControllerInterface interface {
 	GetUserById(c *gin.Context)
 	UpdateUserData(c *gin.Context)
 	DeleteUser(c *gin.Context)
+	GetUserInfo(c *gin.Context)
 }
 
 type UserController struct {
@@ -106,4 +107,18 @@ func (u UserController) UpdateUserData(c *gin.Context) {
 // @Router /users/{userID} [delete]
 func (u UserController) DeleteUser(c *gin.Context) {
 	u.svc.DeleteUser(c)
+}
+
+// @Summary Get User Info
+// @Schemes
+// @Description Get user info
+// @Tags User
+//
+//	@Success		200	{object}	response.User
+//
+// @Security Bearer
+//
+// @Router /users/info [get]
+func (u UserController) GetUserInfo(c *gin.Context) {
+	u.svc.GetUserInfo(c)
 }

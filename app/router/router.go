@@ -66,6 +66,7 @@ func RouterInit(init BaseModuleInit) *gin.Engine {
 	user.GET("/:userID", init.UserModule.UserCtrl.GetUserById)
 	user.PUT("/:userID", init.UserModule.UserCtrl.UpdateUserData)
 	user.DELETE("/:userID", init.UserModule.UserCtrl.DeleteUser)
+	user.GET("/info", init.UserModule.UserCtrl.GetUserInfo)
 
 	auth := api.Group("/auth")
 

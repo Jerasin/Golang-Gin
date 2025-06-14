@@ -8,8 +8,8 @@ type Product struct {
 	Price             float64   `json:"price" binding:"required" example:"200"`
 	Amount            int       `json:"amount" binding:"required" example:"10"`
 	ProductCategoryId int       `json:"productCategoryId" binding:"required" example:"1"`
-	SaleOpenDate      time.Time `json:"saleOpenDate" binding:"required" example:"2021-12-26T00:00:00Z"`
-	SaleCloseDate     time.Time `json:"saleCloseDate" binding:"required" example:"2021-12-26T00:00:00Z"`
+	SaleOpenDate      time.Time `json:"saleOpenDate"  example:"2021-12-26T00:00:00Z"`
+	SaleCloseDate     time.Time `json:"saleCloseDate" example:"2021-12-26T00:00:00Z"`
 	ImgUrl            string    `json:"imgUrl"`
 }
 

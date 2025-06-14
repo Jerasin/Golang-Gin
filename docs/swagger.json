@@ -954,6 +954,28 @@
                 }
             }
         },
+        "/users/info": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get user info",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.User"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userID}": {
             "get": {
                 "security": [
@@ -1497,9 +1519,9 @@
                 "amount",
                 "name",
                 "price",
-                "product_category_id",
-                "sale_close_date",
-                "sale_open_date"
+                "productCategoryId",
+                "saleCloseDate",
+                "saleOpenDate"
             ],
             "properties": {
                 "amount": {
@@ -1510,6 +1532,9 @@
                     "type": "string",
                     "example": "apple"
                 },
+                "imgUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
@@ -1518,15 +1543,15 @@
                     "type": "number",
                     "example": 200
                 },
-                "product_category_id": {
+                "productCategoryId": {
                     "type": "integer",
                     "example": 1
                 },
-                "sale_close_date": {
+                "saleCloseDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "sale_open_date": {
+                "saleOpenDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 }
@@ -1593,6 +1618,9 @@
                     "type": "string",
                     "example": "apple"
                 },
+                "imgUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
@@ -1605,15 +1633,15 @@
                     "type": "integer",
                     "example": 1
                 },
-                "sale_close_date": {
+                "saleCloseDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "sale_open_date": {
+                "saleOpenDate": {
                     "type": "string",
                     "example": "2021-12-26T00:00:00Z"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -1674,6 +1702,7 @@
                 "email",
                 "fullname",
                 "password",
+                "roleInfoId",
                 "username"
             ],
             "properties": {
@@ -1849,9 +1878,15 @@
         "response.Product": {
             "type": "object",
             "required": [
-                "name"
+                "amount",
+                "name",
+                "price"
             ],
             "properties": {
+                "amount": {
+                    "type": "integer",
+                    "example": 10
+                },
                 "description": {
                     "type": "string",
                     "example": "apple"
@@ -1859,9 +1894,16 @@
                 "id": {
                     "type": "integer"
                 },
+                "img_url": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "example": "apple"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 200
                 }
             }
         },
@@ -1999,6 +2041,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "userId": {
+                    "type": "integer"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -2033,6 +2078,9 @@
         "response.Wallet": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },

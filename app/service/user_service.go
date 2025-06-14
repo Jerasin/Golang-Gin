@@ -12,6 +12,7 @@ import (
 	"github.com/Jerasin/app/repository"
 	"github.com/Jerasin/app/request"
 	"github.com/Jerasin/app/response"
+	"github.com/goforj/godump"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,7 @@ type UserServiceInterface interface {
 	CreateUser(c *gin.Context)
 	UpdateUser(c *gin.Context)
 	DeleteUser(c *gin.Context)
+	GetUserInfo(c *gin.Context)
 	// GetUser(c *gin.Context, user model.User, query map[interface{}]interface{}, field response.User) model.User
 }
 
@@ -181,6 +183,54 @@ func (u UserServiceModel) DeleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.DeleteResponse()))
+}
+
+func (u UserServiceModel) GetUserInfo(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+
+	id, ok := c.Get("userID")
+	if !ok {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	godump.Dump(id)
+
+	userID, ok := id.(uint)
+	if !ok {
+		pkg.PanicException(constant.BadRequest)
+	}
+	godump.Dump(userID)
+
+	var user response.User
+	var roleInfo model.RoleInfo
+	err := u.BaseRepository.FindOne(nil, &user, "id = ?", userID)
+	if err != nil {
+		pkg.PanicException(constant.UnknownError)
+	}
+	options := repository.Options{
+		Query:     "role_infos.id = ?",
+		QueryArgs: []any{user.RoleInfoID},
+		Preloads:  []string{"PermissionInfos"},
+	}
+	err = u.BaseRepository.FindOneV2(nil, &roleInfo, options)
+	if err != nil {
+		pkg.PanicException(constant.UnknownError)
+	}
+
+	res := response.UserInfo{
+		Id:         user.Id,
+		Username:   user.Username,
+		FullName:   user.FullName,
+		Avatar:     user.Avatar,
+		RoleInfoID: user.RoleInfoID,
+		RoleInfo: response.UserRoleInfo{
+			Name:            roleInfo.Name,
+			Description:     roleInfo.Description,
+			PermissionInfos: roleInfo.PermissionInfos,
+		},
+	}
+
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.BuildResponse(constant.Success, res)))
 }
 
 // func (u UserServiceModel) GetUser(c *gin.Context, user model.User, query map[interface{}]interface{}, field response.User) model.User {

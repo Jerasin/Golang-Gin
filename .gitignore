@@ -5,3 +5,5 @@ go-bin
 gin-bin
 
 deploy.sh
+
+tmp

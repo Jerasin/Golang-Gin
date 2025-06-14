@@ -13,25 +13,24 @@ import (
 )
 
 type Options struct {
-	Query     interface{}
-	QueryArgs []interface{}
-	Join      string
-	JoinArgs  []interface{}
+	Query     any
+	QueryArgs []any
+	Joins     []string
 	Select    string
-	Preload   string
+	Preloads  []string
 }
 
 type BaseRepositoryInterface interface {
 	ClientDb() *gorm.DB
-	Pagination(p PaginationModel, query interface{}, args ...interface{}) (result interface{}, Error error)
-	Save(tx *gorm.DB, model interface{}) error
-	IsExits(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error
-	FindOne(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error
-	Find(tx *gorm.DB, model interface{}, query interface{}, p PaginationModel, args ...interface{}) error
-	Update(tx *gorm.DB, id int, model interface{}, update interface{}) error
-	TotalPage(model interface{}, pageSize int) (int64, error)
-	Delete(model interface{}, id int) error
-	FindOneV2(tx *gorm.DB, model interface{}, options Options) error
+	Pagination(p PaginationModel, query any, args ...any) (result any, Error error)
+	Save(tx *gorm.DB, model any) error
+	IsExits(tx *gorm.DB, model any, query any, args ...any) error
+	FindOne(tx *gorm.DB, model any, query any, args ...any) error
+	Find(tx *gorm.DB, model any, query any, p PaginationModel, args ...any) error
+	Update(tx *gorm.DB, id int, model any, update any) error
+	TotalPage(model any, pageSize int) (int64, error)
+	Delete(model any, id int) error
+	FindOneV2(tx *gorm.DB, model any, options Options) error
 }
 
 type BaseRepository struct {
@@ -44,8 +43,8 @@ type PaginationModel struct {
 	Search    string
 	SortField string
 	SortValue string
-	Field     map[string]interface{}
-	Dest      interface{}
+	Field     map[string]any
+	Dest      any
 }
 
 func BaseRepositoryInit(db *gorm.DB) *BaseRepository {
@@ -55,7 +54,7 @@ func BaseRepositoryInit(db *gorm.DB) *BaseRepository {
 	}
 }
 
-func getField(field map[string]interface{}) string {
+func getField(field map[string]any) string {
 	b := new(bytes.Buffer)
 	index := 0
 	for key := range field {
@@ -76,7 +75,7 @@ func (b BaseRepository) ClientDb() *gorm.DB {
 	return b.db
 }
 
-func (b BaseRepository) Pagination(p PaginationModel, query interface{}, args ...interface{}) (result interface{}, Error error) {
+func (b BaseRepository) Pagination(p PaginationModel, query any, args ...any) (result any, Error error) {
 	var err error
 	order := fmt.Sprintf("%s %s", p.SortField, strings.ToUpper(p.SortValue))
 	fields := getField(p.Field)
@@ -105,7 +104,7 @@ func (b BaseRepository) Pagination(p PaginationModel, query interface{}, args ..
 	return p.Dest, nil
 }
 
-func (b BaseRepository) Save(tx *gorm.DB, model interface{}) error {
+func (b BaseRepository) Save(tx *gorm.DB, model any) error {
 	db := b.db
 
 	if tx != nil {
@@ -120,7 +119,7 @@ func (b BaseRepository) Save(tx *gorm.DB, model interface{}) error {
 	return nil
 }
 
-func (b BaseRepository) IsExits(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error {
+func (b BaseRepository) IsExits(tx *gorm.DB, model any, query any, args ...any) error {
 	db := b.db
 
 	if tx != nil {
@@ -147,7 +146,7 @@ func (b BaseRepository) IsExits(tx *gorm.DB, model interface{}, query interface{
 	return nil
 }
 
-func (b BaseRepository) FindOne(tx *gorm.DB, model interface{}, query interface{}, args ...interface{}) error {
+func (b BaseRepository) FindOne(tx *gorm.DB, model any, query any, args ...any) error {
 	db := b.db
 
 	if tx != nil {
@@ -169,13 +168,14 @@ func (b BaseRepository) FindOne(tx *gorm.DB, model interface{}, query interface{
 	return nil
 }
 
-func (b BaseRepository) FindOneV2(tx *gorm.DB, model interface{}, options Options) error {
+func (b BaseRepository) FindOneV2(tx *gorm.DB, model any, options Options) error {
 	db := b.db
 	var str string
 	if tx != nil {
 		db = tx
 	}
 	var err error
+
 	if options.Query == nil || options.QueryArgs == nil {
 		log.Error("Got an error when findOne required query")
 		pkg.PanicException(constant.RequiredQuery)
@@ -185,11 +185,21 @@ func (b BaseRepository) FindOneV2(tx *gorm.DB, model interface{}, options Option
 		db = db.Select(options.Select)
 	}
 
-	if options.Join != str && options.Preload != str {
-		db = db.Preload(options.Preload).Joins(options.Join)
+	for _, preload := range options.Preloads {
+		if preload != "" {
+			db = db.Preload(preload)
+		}
 	}
 
-	err = db.Where(options.Query, options.QueryArgs...).First(model).Error
+	for _, join := range options.Joins {
+		if join != "" {
+			db = db.Joins(join)
+		}
+	}
+
+	db = db.Where(options.Query, options.QueryArgs...)
+
+	err = db.First(model).Error
 
 	if err != nil {
 		log.Error("Got an error when findOne Error: ", err)
@@ -199,7 +209,7 @@ func (b BaseRepository) FindOneV2(tx *gorm.DB, model interface{}, options Option
 	return nil
 }
 
-func (b BaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, p PaginationModel, args ...interface{}) error {
+func (b BaseRepository) Find(tx *gorm.DB, model any, query any, p PaginationModel, args ...any) error {
 	db := b.db
 
 	if tx != nil {
@@ -229,7 +239,7 @@ func (b BaseRepository) Find(tx *gorm.DB, model interface{}, query interface{}, 
 	return nil
 }
 
-func (b BaseRepository) Update(tx *gorm.DB, id int, model interface{}, update interface{}) error {
+func (b BaseRepository) Update(tx *gorm.DB, id int, model any, update any) error {
 	db := b.db
 
 	if tx != nil {
@@ -243,7 +253,7 @@ func (b BaseRepository) Update(tx *gorm.DB, id int, model interface{}, update in
 	return nil
 }
 
-func (b BaseRepository) TotalPage(model interface{}, pageSize int) (int64, error) {
+func (b BaseRepository) TotalPage(model any, pageSize int) (int64, error) {
 	var count int64
 	err := b.db.Model(model).Count(&count).Error
 	if err != nil {
@@ -255,7 +265,7 @@ func (b BaseRepository) TotalPage(model interface{}, pageSize int) (int64, error
 	return totalPage, err
 }
 
-func (b BaseRepository) Delete(model interface{}, id int) error {
+func (b BaseRepository) Delete(model any, id int) error {
 	err := b.db.Delete(model, id).Error
 	if err != nil {
 		log.Error("Got an error when delete user. Error: ", err)

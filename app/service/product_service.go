@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Jerasin/app/constant"
 	"github.com/Jerasin/app/model"
@@ -109,8 +110,9 @@ func (p ProductServiceModel) GetPaginationProduct(c *gin.Context, page int, page
 		Field:     fields,
 		Dest:      products,
 	}
+	now := time.Now()
 
-	data, err := p.BaseRepository.Pagination(paginationModel, nil)
+	data, err := p.BaseRepository.Pagination(paginationModel, "sale_open_date IS NULL OR sale_close_date IS NULL OR (sale_open_date <= ? AND  sale_close_date  >= ?)", now, now)
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)

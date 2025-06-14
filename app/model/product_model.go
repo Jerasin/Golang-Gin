@@ -11,5 +11,5 @@ type Product struct {
 	SaleOpenDate      *time.Time
 	SaleCloseDate     *time.Time
 	ProductCategoryID uint   `gorm:"not null"`
-	ImgUrl            string `gorm:"default:null"`
+	ImgUrl            string `gorm:"column:img_url" json:"imgUrl,omitempty"`
 }
