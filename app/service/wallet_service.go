@@ -11,6 +11,7 @@ import (
 	"github.com/Jerasin/app/repository"
 	"github.com/Jerasin/app/request"
 	"github.com/Jerasin/app/response"
+	"github.com/Jerasin/app/util"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -71,6 +72,14 @@ func (p WalletServiceModel) GetPaginationWallet(c *gin.Context, page int, pageSi
 	fmt.Println("fields", fields)
 	var wallets []model.Wallet
 
+	username, err := util.GetPayloadInToken(c, "username")
+	if err != nil {
+		log.Error("Happened error when GetPayloadInToken Error", err)
+		pkg.PanicException(constant.InvalidRequest)
+	}
+	var user model.User
+	p.BaseRepository.FindOne(nil, &user, "username = ?", username)
+
 	paginationModel := repository.PaginationModel{
 		Limit:     limit,
 		Offset:    offset,
@@ -80,7 +89,7 @@ func (p WalletServiceModel) GetPaginationWallet(c *gin.Context, page int, pageSi
 		Field:     fields,
 		Dest:      wallets,
 	}
-	data, err := p.BaseRepository.Pagination(paginationModel, nil)
+	data, err := p.BaseRepository.Pagination(paginationModel, "user_id = ?", user.ID)
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)

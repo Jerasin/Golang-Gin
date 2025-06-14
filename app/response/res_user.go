@@ -3,12 +3,13 @@ package response
 import "github.com/Jerasin/app/model"
 
 type User struct {
-	Id       int    `json:"id"`
+	model.BaseModel
 	Username string `json:"username"`
 	// Password string `json:"password"`
-	FullName   string `json:"fullName"`
+	FullName   string `json:"fullname"`
 	Avatar     string `json:"avatar"`
 	RoleInfoID uint   `json:"userId"`
+	Email      string `json:"email"`
 }
 
 type UserPagination struct {
@@ -23,10 +24,11 @@ type UserRoleInfo struct {
 }
 
 type UserInfo struct {
-	Id       int    `json:"id"`
+	model.BaseModel
+	Email    string `json:"email"`
 	Username string `json:"username"`
 	// Password string `json:"password"`
-	FullName   string       `json:"fullName"`
+	FullName   string       `json:"fullname"`
 	Avatar     string       `json:"avatar"`
 	RoleInfoID uint         `json:"userId"`
 	RoleInfo   UserRoleInfo `json:"userRole"`

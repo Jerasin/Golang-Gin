@@ -201,7 +201,7 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 	}
 	godump.Dump(userID)
 
-	var user response.User
+	var user model.User
 	var roleInfo model.RoleInfo
 	err := u.BaseRepository.FindOne(nil, &user, "id = ?", userID)
 	if err != nil {
@@ -217,10 +217,17 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	godump.Dump(user)
+
 	res := response.UserInfo{
-		Id:         user.Id,
+		BaseModel: model.BaseModel{
+			ID:        user.ID,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
+		Email:      user.Email,
 		Username:   user.Username,
-		FullName:   user.FullName,
+		FullName:   user.Fullname,
 		Avatar:     user.Avatar,
 		RoleInfoID: user.RoleInfoID,
 		RoleInfo: response.UserRoleInfo{
@@ -230,7 +237,7 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 		},
 	}
 
-	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.BuildResponse(constant.Success, res)))
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, res))
 }
 
 // func (u UserServiceModel) GetUser(c *gin.Context, user model.User, query map[interface{}]interface{}, field response.User) model.User {
