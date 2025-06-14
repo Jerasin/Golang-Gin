@@ -1,9 +1,11 @@
 package response
 
+import "github.com/Jerasin/app/model"
+
 type Order struct {
-	Id          int     `json:"id"`
-	TotalPrice  float64 `json:"total_price" binding:"required"`
-	TotalAmount int     `json:"total_amount" binding:"required"`
+	model.BaseModel
+	TotalPrice  float64 `json:"totalPrice" binding:"required"`
+	TotalAmount int     `json:"totalAmount" binding:"required"`
 }
 
 type OrderPagination struct {
