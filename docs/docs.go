@@ -179,6 +179,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/{orderId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get Order Detail",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get Order Detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrderDetailReponse"
+                        }
+                    }
+                }
+            }
+        },
         "/permission_infos": {
             "get": {
                 "security": [
@@ -1338,7 +1369,7 @@ const docTemplate = `{
                 "createdBy": {
                     "type": "integer"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1373,7 +1404,7 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1388,6 +1419,9 @@ const docTemplate = `{
                 "productID": {
                     "type": "integer"
                 },
+                "productName": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -1396,13 +1430,19 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
+                "allets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Wallet"
+                    }
+                },
                 "avatar": {
                     "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "email": {
@@ -1414,7 +1454,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "order": {
+                "ordes": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Order"
@@ -1431,12 +1471,6 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
-                },
-                "wallets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Wallet"
-                    }
                 }
             }
         },
@@ -1446,7 +1480,7 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1479,14 +1513,14 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "product_id"
+                "productId"
             ],
             "properties": {
                 "amount": {
                     "type": "integer",
                     "example": 10
                 },
-                "product_id": {
+                "productId": {
                     "type": "integer",
                     "example": 1
                 }
@@ -1496,7 +1530,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "orders",
-                "wallet_id"
+                "walletId"
             ],
             "properties": {
                 "orders": {
@@ -1505,7 +1539,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/request.OrderItem"
                     }
                 },
-                "wallet_id": {
+                "walletId": {
                     "type": "integer",
                     "example": 10
                 }
@@ -1531,9 +1565,7 @@ const docTemplate = `{
                 "amount",
                 "name",
                 "price",
-                "productCategoryId",
-                "saleCloseDate",
-                "saleOpenDate"
+                "productCategoryId"
             ],
             "properties": {
                 "amount": {
@@ -1749,7 +1781,7 @@ const docTemplate = `{
             "required": [
                 "name",
                 "token",
-                "user_id",
+                "userId",
                 "uuid",
                 "value"
             ],
@@ -1762,7 +1794,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "token"
                 },
-                "user_id": {
+                "userId": {
                     "type": "integer",
                     "example": 1
                 },
@@ -1809,18 +1841,64 @@ const docTemplate = `{
         "response.Order": {
             "type": "object",
             "required": [
-                "total_amount",
-                "total_price"
+                "totalAmount",
+                "totalPrice"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "total_amount": {
+                "totalAmount": {
                     "type": "integer"
                 },
-                "total_price": {
+                "totalPrice": {
                     "type": "number"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "orderID": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "productID": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrderDetailReponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.OrderDetail"
+                    }
+                },
+                "response_key": {
+                    "type": "string"
+                },
+                "response_message": {
+                    "type": "string"
                 }
             }
         },
@@ -1906,7 +1984,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "img_url": {
+                "imgUrl": {
                     "type": "string"
                 },
                 "name": {
@@ -2046,12 +2124,24 @@ const docTemplate = `{
                 "avatar": {
                     "type": "string"
                 },
-                "fullName": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullname": {
                     "description": "Password string ` + "`" + `json:\"password\"` + "`" + `",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "integer"

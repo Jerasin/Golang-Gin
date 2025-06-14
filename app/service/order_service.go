@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/Jerasin/app/constant"
@@ -13,6 +14,7 @@ import (
 	"github.com/Jerasin/app/response"
 	"github.com/Jerasin/app/util"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/godump"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -23,6 +25,7 @@ type OrderServiceModel struct {
 
 type OrderServiceInterface interface {
 	CreateOrder(c *gin.Context)
+	GetOrderDetail(c *gin.Context)
 	GetPaginationOrder(c *gin.Context, page int, pageSize int, search string, sortField string, sortValue string, field response.Order)
 }
 
@@ -84,9 +87,10 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 			}
 
 			orderDetail := model.OrderDetail{
-				ProductID: product.ID,
-				Price:     product.Price,
-				Amount:    item.Amount,
+				ProductID:   product.ID,
+				Price:       product.Price,
+				Amount:      item.Amount,
+				ProductName: product.Name,
 			}
 
 			orderDetails = append(orderDetails, orderDetail)
@@ -214,4 +218,20 @@ func (o OrderServiceModel) GetPaginationOrder(c *gin.Context, page int, pageSize
 
 	pkg.ModelDump(&res, data)
 	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+}
+
+func (o OrderServiceModel) GetOrderDetail(c *gin.Context) {
+	orderID, _ := strconv.Atoi(c.Param("orderID"))
+
+	var orderDetails []model.OrderDetail
+
+	err := o.BaseRepository.Find(nil, &orderDetails, "order_id = ?", repository.PaginationModel{}, orderID)
+	if err != nil {
+		log.Error("Happened error when get data from database. Error", err)
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	godump.Dump(orderDetails)
+
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, orderDetails))
 }

@@ -14,6 +14,7 @@ type Wallet struct {
 	Token  string `json:"token"`
 	Uuid   string `json:"uuid"`
 	UserID uint   `json:"user_id"`
+	Value  int    `json:"value"`
 }
 
 type WalletPagination struct {

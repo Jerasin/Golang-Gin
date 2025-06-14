@@ -93,6 +93,7 @@ func RouterInit(init BaseModuleInit) *gin.Engine {
 	order.Use(middleware.AuthorizeJwt())
 	order.POST("", init.OrderModule.OrderCtrl.CreateOrder)
 	order.GET("", init.OrderModule.OrderCtrl.GetAllProducts)
+	order.GET("/:orderID", init.OrderModule.OrderCtrl.GetDetail)
 
 	permissionInfo := api.Group("/permission_infos")
 	permissionInfo.Use(middleware.AuthorizeJwt())

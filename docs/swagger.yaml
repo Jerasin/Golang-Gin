@@ -50,7 +50,7 @@ definitions:
         type: string
       createdBy:
         type: integer
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
@@ -73,7 +73,7 @@ definitions:
         type: integer
       createdAt:
         type: string
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
@@ -83,16 +83,22 @@ definitions:
         type: number
       productID:
         type: integer
+      productName:
+        type: string
       updatedAt:
         type: string
     type: object
   model.User:
     properties:
+      allets:
+        items:
+          $ref: '#/definitions/model.Wallet'
+        type: array
       avatar:
         type: string
       createdAt:
         type: string
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       email:
         type: string
@@ -100,7 +106,7 @@ definitions:
         type: string
       id:
         type: integer
-      order:
+      ordes:
         items:
           $ref: '#/definitions/model.Order'
         type: array
@@ -112,16 +118,12 @@ definitions:
         type: string
       username:
         type: string
-      wallets:
-        items:
-          $ref: '#/definitions/model.Wallet'
-        type: array
     type: object
   model.Wallet:
     properties:
       createdAt:
         type: string
-      deleted_at:
+      deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
@@ -145,12 +147,12 @@ definitions:
       amount:
         example: 10
         type: integer
-      product_id:
+      productId:
         example: 1
         type: integer
     required:
     - amount
-    - product_id
+    - productId
     type: object
   request.OrderRequest:
     properties:
@@ -158,12 +160,12 @@ definitions:
         items:
           $ref: '#/definitions/request.OrderItem'
         type: array
-      wallet_id:
+      walletId:
         example: 10
         type: integer
     required:
     - orders
-    - wallet_id
+    - walletId
     type: object
   request.PermissionInfoRequest:
     properties:
@@ -204,8 +206,6 @@ definitions:
     - name
     - price
     - productCategoryId
-    - saleCloseDate
-    - saleOpenDate
     type: object
   request.ProductCategoryRequest:
     properties:
@@ -336,7 +336,7 @@ definitions:
       token:
         example: token
         type: string
-      user_id:
+      userId:
         example: 1
         type: integer
       uuid:
@@ -348,7 +348,7 @@ definitions:
     required:
     - name
     - token
-    - user_id
+    - userId
     - uuid
     - value
     type: object
@@ -374,15 +374,45 @@ definitions:
     type: object
   response.Order:
     properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
       id:
         type: integer
-      total_amount:
+      totalAmount:
         type: integer
-      total_price:
+      totalPrice:
         type: number
+      updatedAt:
+        type: string
     required:
-    - total_amount
-    - total_price
+    - totalAmount
+    - totalPrice
+    type: object
+  response.OrderDetail:
+    properties:
+      amount:
+        type: integer
+      orderID:
+        type: integer
+      price:
+        type: number
+      productID:
+        type: integer
+      productName:
+        type: string
+    type: object
+  response.OrderDetailReponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/response.OrderDetail'
+        type: array
+      response_key:
+        type: string
+      response_message:
+        type: string
     type: object
   response.OrderPagination:
     properties:
@@ -435,7 +465,7 @@ definitions:
         type: string
       id:
         type: integer
-      img_url:
+      imgUrl:
         type: string
       name:
         example: apple
@@ -531,11 +561,19 @@ definitions:
     properties:
       avatar:
         type: string
-      fullName:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      fullname:
         description: Password string `json:"password"`
         type: string
       id:
         type: integer
+      updatedAt:
+        type: string
       userId:
         type: integer
       username:
@@ -692,6 +730,25 @@ paths:
       security:
       - Bearer: []
       summary: Create Order
+      tags:
+      - Order
+  /orders/{orderId}:
+    get:
+      description: Get Order Detail
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.OrderDetailReponse'
+      security:
+      - Bearer: []
+      summary: Get Order Detail
       tags:
       - Order
   /permission_infos:

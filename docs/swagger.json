@@ -167,6 +167,37 @@
                 }
             }
         },
+        "/orders/{orderId}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get Order Detail",
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get Order Detail",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.OrderDetailReponse"
+                        }
+                    }
+                }
+            }
+        },
         "/permission_infos": {
             "get": {
                 "security": [
@@ -1326,7 +1357,7 @@
                 "createdBy": {
                     "type": "integer"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1361,7 +1392,7 @@
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1376,6 +1407,9 @@
                 "productID": {
                     "type": "integer"
                 },
+                "productName": {
+                    "type": "string"
+                },
                 "updatedAt": {
                     "type": "string"
                 }
@@ -1384,13 +1418,19 @@
         "model.User": {
             "type": "object",
             "properties": {
+                "allets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Wallet"
+                    }
+                },
                 "avatar": {
                     "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "email": {
@@ -1402,7 +1442,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "order": {
+                "ordes": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Order"
@@ -1419,12 +1459,6 @@
                 },
                 "username": {
                     "type": "string"
-                },
-                "wallets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Wallet"
-                    }
                 }
             }
         },
@@ -1434,7 +1468,7 @@
                 "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "id": {
@@ -1467,14 +1501,14 @@
             "type": "object",
             "required": [
                 "amount",
-                "product_id"
+                "productId"
             ],
             "properties": {
                 "amount": {
                     "type": "integer",
                     "example": 10
                 },
-                "product_id": {
+                "productId": {
                     "type": "integer",
                     "example": 1
                 }
@@ -1484,7 +1518,7 @@
             "type": "object",
             "required": [
                 "orders",
-                "wallet_id"
+                "walletId"
             ],
             "properties": {
                 "orders": {
@@ -1493,7 +1527,7 @@
                         "$ref": "#/definitions/request.OrderItem"
                     }
                 },
-                "wallet_id": {
+                "walletId": {
                     "type": "integer",
                     "example": 10
                 }
@@ -1519,9 +1553,7 @@
                 "amount",
                 "name",
                 "price",
-                "productCategoryId",
-                "saleCloseDate",
-                "saleOpenDate"
+                "productCategoryId"
             ],
             "properties": {
                 "amount": {
@@ -1737,7 +1769,7 @@
             "required": [
                 "name",
                 "token",
-                "user_id",
+                "userId",
                 "uuid",
                 "value"
             ],
@@ -1750,7 +1782,7 @@
                     "type": "string",
                     "example": "token"
                 },
-                "user_id": {
+                "userId": {
                     "type": "integer",
                     "example": 1
                 },
@@ -1797,18 +1829,64 @@
         "response.Order": {
             "type": "object",
             "required": [
-                "total_amount",
-                "total_price"
+                "totalAmount",
+                "totalPrice"
             ],
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "total_amount": {
+                "totalAmount": {
                     "type": "integer"
                 },
-                "total_price": {
+                "totalPrice": {
                     "type": "number"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "orderID": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "productID": {
+                    "type": "integer"
+                },
+                "productName": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.OrderDetailReponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.OrderDetail"
+                    }
+                },
+                "response_key": {
+                    "type": "string"
+                },
+                "response_message": {
+                    "type": "string"
                 }
             }
         },
@@ -1894,7 +1972,7 @@
                 "id": {
                     "type": "integer"
                 },
-                "img_url": {
+                "imgUrl": {
                     "type": "string"
                 },
                 "name": {
@@ -2034,12 +2112,24 @@
                 "avatar": {
                     "type": "string"
                 },
-                "fullName": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullname": {
                     "description": "Password string `json:\"password\"`",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "integer"

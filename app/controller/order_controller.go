@@ -13,6 +13,7 @@ type OrderController struct {
 type OrderControllerInterface interface {
 	CreateOrder(c *gin.Context)
 	GetAllProducts(c *gin.Context)
+	GetDetail(c *gin.Context)
 }
 
 func OrderControllerInit(orderSvc service.OrderServiceInterface) *OrderController {
@@ -57,4 +58,20 @@ func (o OrderController) GetAllProducts(c *gin.Context) {
 	order := response.Order{}
 
 	o.svc.GetPaginationOrder(c, query.page, query.pageSize, query.search, query.sortField, query.sortValue, order)
+}
+
+// @Summary Get Order Detail
+// @Schemes
+// @Description Get Order Detail
+// @Tags Order
+//
+// @Param orderId  path int true "Order ID"
+//
+//	@Success		200	{object}	response.OrderDetailReponse
+//
+// @Security Bearer
+//
+// @Router /orders/{orderId} [get]
+func (o OrderController) GetDetail(c *gin.Context) {
+	o.svc.GetOrderDetail(c)
 }
