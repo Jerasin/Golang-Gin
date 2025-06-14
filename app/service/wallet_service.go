@@ -13,6 +13,7 @@ import (
 	"github.com/Jerasin/app/response"
 	"github.com/Jerasin/app/util"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/godump"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -38,18 +39,25 @@ func WalletServiceInit(baseRepo repository.BaseRepositoryInterface) *WalletServi
 func (p WalletServiceModel) CreateWallet(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	var err error
-	var body model.Wallet
+	var body request.WalletRequest
 
 	err = c.ShouldBindJSON(&body)
 	if err != nil {
 		pkg.PanicException(constant.BadRequest)
 	}
 
-	fmt.Printf("body = %+v", body)
+	godump.Dump(body)
 
 	p.BaseRepository.ClientDb().Transaction(func(tx *gorm.DB) error {
-		err := p.BaseRepository.Save(tx, &body)
+		wallet := model.Wallet{
+			Name:   body.Name,
+			Token:  body.Token,
+			Uuid:   body.Uuid,
+			UserID: body.UserID,
+			Value:  body.Value,
+		}
 
+		err := p.BaseRepository.Save(tx, &wallet)
 		if err != nil {
 			pkg.PanicException(constant.BadRequest)
 		}
