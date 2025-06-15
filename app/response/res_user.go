@@ -6,10 +6,11 @@ type User struct {
 	model.BaseModel
 	Username string `json:"username"`
 	// Password string `json:"password"`
-	FullName   string `json:"fullname"`
+	Fullname   string `gorm:"unique;not null" json:"fullname,omitempty"`
 	Avatar     string `json:"avatar"`
-	RoleInfoID uint   `json:"userId"`
+	RoleInfoID uint   `json:"roleId" gorm:"column:role_info_id"`
 	Email      string `json:"email"`
+	IsActive   bool   `gorm:"column:is_active" json:"isActive"`
 }
 
 type UserPagination struct {

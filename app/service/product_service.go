@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -66,15 +67,24 @@ func (p ProductServiceModel) CreateProduct(c *gin.Context) {
 
 		fmt.Printf("productCategory = %+v\n", request)
 		fmt.Printf("%+v\n", request)
-
+		isSaleOpenDate := reflect.ValueOf(request.SaleOpenDate).IsZero()
+		isSaleCloseDate := reflect.ValueOf(request.SaleCloseDate).IsZero()
 		newProduct := model.Product{
 			Name:              request.Name,
 			Description:       request.Description,
 			Price:             request.Price,
 			Amount:            request.Amount,
 			ProductCategoryID: uint(request.ProductCategoryId),
-			SaleOpenDate:      &request.SaleOpenDate,
-			SaleCloseDate:     &request.SaleCloseDate,
+			// SaleOpenDate:      request.SaleOpenDate,
+			// SaleCloseDate:     request.SaleCloseDate,
+		}
+
+		if isSaleOpenDate {
+			newProduct.SaleOpenDate = request.SaleOpenDate
+		}
+
+		if isSaleCloseDate {
+			newProduct.SaleCloseDate = request.SaleCloseDate
 		}
 
 		err = p.BaseRepository.Save(tx, &newProduct)

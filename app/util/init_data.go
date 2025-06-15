@@ -206,6 +206,13 @@ func (i InitDataClient) InitUser() []model.User {
 			panic("roleInfoId error")
 		}
 
+		isActive, ok := item["isActive"].(bool)
+		if !ok {
+			fmt.Println("err", ok)
+			panic("roleInfoId error")
+
+		}
+
 		fmt.Println("username", username)
 
 		hash, _ := bcrypt.GenerateFromPassword([]byte(password), 15)
@@ -216,6 +223,7 @@ func (i InitDataClient) InitUser() []model.User {
 			Email:      email,
 			Avatar:     avatar,
 			RoleInfoID: roleInfoId,
+			IsActive:   isActive,
 		}
 
 		newUserNameList = append(newUserNameList, username)

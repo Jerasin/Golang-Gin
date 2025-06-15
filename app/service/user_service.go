@@ -52,7 +52,7 @@ func (u UserServiceModel) CreateUser(c *gin.Context) {
 
 		if err = c.ShouldBindJSON(&request); err != nil {
 			log.Error("Happened error when mapping request from FE. Error", err)
-			pkg.PanicException(constant.InvalidRequest)
+			pkg.PanicException(constant.BadRequest)
 		}
 
 		_, err = mail.ParseAddress(request.Email)
@@ -115,7 +115,7 @@ func (u UserServiceModel) GetUserById(c *gin.Context) {
 	log.Info("start to execute program get user by id")
 	userID, _ := strconv.Atoi(c.Param("userID"))
 
-	var user model.User
+	var user response.User
 	var wallets []response.Wallet
 	err := u.BaseRepository.FindOne(nil, &user, "id = ?", userID)
 	if err != nil {
@@ -139,6 +139,8 @@ func (u UserServiceModel) GetPaginationUser(c *gin.Context, page int, pageSize i
 	offset := (page - 1) * pageSize
 	limit := pageSize
 	fields := DbHandleSelectField(field)
+
+	godump.Dump("fields", fields)
 
 	var users []model.User
 	paginationModel := repository.PaginationModel{
@@ -205,7 +207,6 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 	if !ok {
 		pkg.PanicException(constant.BadRequest)
 	}
-	godump.Dump(userID)
 
 	var user model.User
 	var roleInfo model.RoleInfo
@@ -223,7 +224,7 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError)
 	}
 
-	godump.Dump(user)
+	// godump.Dump(user)
 
 	res := response.UserInfo{
 		BaseModel: model.BaseModel{

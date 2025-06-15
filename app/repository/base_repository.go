@@ -46,6 +46,8 @@ type PaginationModel struct {
 	SortValue string
 	Field     map[string]any
 	Dest      any
+	Joins     []string
+	Preloads  []string
 }
 
 func BaseRepositoryInit(db *gorm.DB) *BaseRepository {
@@ -93,6 +95,18 @@ func (b BaseRepository) Pagination(p PaginationModel, query any, args ...any) (r
 
 	if query != nil {
 		db = b.db.Where(query, args...)
+	}
+
+	for _, preload := range p.Preloads {
+		if preload != "" {
+			db = db.Preload(preload)
+		}
+	}
+
+	for _, join := range p.Joins {
+		if join != "" {
+			db = db.Joins(join)
+		}
 	}
 
 	db = db.Order(order).Offset(p.Offset).Limit(p.Limit).Find(&p.Dest)

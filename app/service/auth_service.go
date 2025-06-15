@@ -65,6 +65,10 @@ func (authSvc AuthServiceModel) Login(c *gin.Context, loginDto dto.LoginDtoReque
 
 	fmt.Println("user", user)
 
+	if !user.IsActive {
+		pkg.PanicException(constant.DataNotFound)
+	}
+
 	isError := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDto.Password))
 
 	fmt.Println("isError", isError)

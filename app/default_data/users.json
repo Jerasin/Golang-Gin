@@ -1,18 +1,20 @@
 [
-    {
-        "username": "admin",
-        "password": "1234",
-        "fullname": "admin test",
-        "email": "admin@gmail.com",
-        "avatar": "admin",
-        "roleInfoId": 1
-    },
-    {
-        "username": "user",
-        "password": "1234",
-        "fullname": "user test",
-        "email": "user@gmail.com",
-        "avatar": "user",
-        "roleInfoId": 2
-    }
+  {
+    "username": "admin",
+    "password": "1234",
+    "fullname": "admin test",
+    "email": "admin@gmail.com",
+    "avatar": "admin",
+    "roleInfoId": 1,
+    "isActive": true
+  },
+  {
+    "username": "user",
+    "password": "1234",
+    "fullname": "user test",
+    "email": "user@gmail.com",
+    "avatar": "user",
+    "roleInfoId": 2,
+    "isActive": true
+  }
 ]
