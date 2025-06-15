@@ -75,6 +75,7 @@ func (p ProductServiceModel) CreateProduct(c *gin.Context) {
 			Price:             request.Price,
 			Amount:            request.Amount,
 			ProductCategoryID: uint(request.ProductCategoryId),
+			ImgUrl:            request.ImgUrl,
 			// SaleOpenDate:      request.SaleOpenDate,
 			// SaleCloseDate:     request.SaleCloseDate,
 		}
