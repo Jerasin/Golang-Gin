@@ -96,12 +96,18 @@ func (p ProductCategoryServiceModel) GetPaginationProductCategory(c *gin.Context
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := p.BaseRepository.Total(&productCategories)
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	fmt.Println("data", data)
 
 	var res []response.ProductCategory
 	pkg.ModelDump(&res, data)
 
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (p ProductCategoryServiceModel) GetProductCategoryById(c *gin.Context) {

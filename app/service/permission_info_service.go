@@ -92,12 +92,18 @@ func (p PermissionInfoServiceModel) GetPaginationPermissionInfo(c *gin.Context, 
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := p.BaseRepository.TotalPage(&permissionInfos, pageSize)
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	fmt.Println("data", data)
 
 	var res []response.PermissionInfo
 	pkg.ModelDump(&res, data)
 
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (p PermissionInfoServiceModel) GetPermissionInfoById(c *gin.Context) {

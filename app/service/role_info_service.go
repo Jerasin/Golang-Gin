@@ -123,12 +123,19 @@ func (p RoleInfoServiceModel) GetPaginationRoleInfo(c *gin.Context, page int, pa
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := p.BaseRepository.Total(&roleInfos)
+
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	var res []response.RoleInfo
 	pkg.ModelDump(&res, data)
 
 	log.Info("res", res)
 
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (p RoleInfoServiceModel) GetRoleInfoById(c *gin.Context) {

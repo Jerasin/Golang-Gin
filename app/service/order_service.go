@@ -214,10 +214,16 @@ func (o OrderServiceModel) GetPaginationOrder(c *gin.Context, page int, pageSize
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := o.BaseRepository.Total(&orders)
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	var res []response.Order
 
 	pkg.ModelDump(&res, data)
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (o OrderServiceModel) GetOrderDetail(c *gin.Context) {

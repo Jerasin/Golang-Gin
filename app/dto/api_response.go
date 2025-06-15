@@ -13,4 +13,5 @@ type ApiPaginationResponse[T any] struct {
 	TotalPage       int64  `json:"totalPage"`
 	Page            int    `json:"page"`
 	PageSize        int    `json:"pageSize"`
+	Total           int64  `json:"total"`
 }

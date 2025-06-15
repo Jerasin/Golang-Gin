@@ -163,11 +163,17 @@ func (u UserServiceModel) GetPaginationUser(c *gin.Context, page int, pageSize i
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := u.BaseRepository.Total(&users)
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	fmt.Println("count", totalPage)
 
 	var res []response.User
 	pkg.ModelDump(&res, data)
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (u UserServiceModel) DeleteUser(c *gin.Context) {

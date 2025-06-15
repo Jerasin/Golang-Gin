@@ -110,12 +110,18 @@ func (p WalletServiceModel) GetPaginationWallet(c *gin.Context, page int, pageSi
 		pkg.PanicException(constant.UnknownError)
 	}
 
+	total, totalErr := p.BaseRepository.Total(&wallets)
+	if totalErr != nil {
+		log.Error("Count Data Error: ", err)
+		pkg.PanicException(constant.UnknownError)
+	}
+
 	fmt.Println("data", data)
 
 	var res []response.Wallet
 	pkg.ModelDump(&res, data)
 
-	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize))
+	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 
 func (p WalletServiceModel) GetWalletById(c *gin.Context) {

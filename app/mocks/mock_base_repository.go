@@ -73,6 +73,11 @@ func (m *MockBaseRepository) TotalPage(model interface{}, pageSize int) (int64, 
 	return argsIsExits.Get(0).(int64), argsIsExits.Error(1)
 }
 
+func (m *MockBaseRepository) Total(model interface{}) (int64, error) {
+	argsIsExits := m.Called(model)
+	return argsIsExits.Get(0).(int64), argsIsExits.Error(1)
+}
+
 func (m *MockBaseRepository) Delete(model interface{}, id int) error {
 	argsIsExits := m.Called(model, id)
 	return argsIsExits.Error(0)

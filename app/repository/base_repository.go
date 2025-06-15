@@ -31,6 +31,7 @@ type BaseRepositoryInterface interface {
 	TotalPage(model any, pageSize int) (int64, error)
 	Delete(model any, id int) error
 	FindOneV2(tx *gorm.DB, model any, options Options) error
+	Total(model any) (int64, error)
 }
 
 type BaseRepository struct {
@@ -77,7 +78,7 @@ func (b BaseRepository) ClientDb() *gorm.DB {
 
 func (b BaseRepository) Pagination(p PaginationModel, query any, args ...any) (result any, Error error) {
 	var err error
-	order := fmt.Sprintf("%s %s", p.SortField, strings.ToUpper(p.SortValue))
+	order := fmt.Sprintf("%s %s , id ASC", p.SortField, strings.ToUpper(p.SortValue))
 	fields := getField(p.Field)
 	var db *gorm.DB
 
@@ -263,6 +264,17 @@ func (b BaseRepository) TotalPage(model any, pageSize int) (int64, error) {
 
 	totalPage := int64(math.Ceil(float64(count) / float64(pageSize)))
 	return totalPage, err
+}
+
+func (b BaseRepository) Total(model any) (int64, error) {
+	var count int64
+	err := b.db.Model(model).Count(&count).Error
+	if err != nil {
+		log.Error("Got an error when delete user. Error: ", err)
+		return count, err
+	}
+
+	return count, err
 }
 
 func (b BaseRepository) Delete(model any, id int) error {
