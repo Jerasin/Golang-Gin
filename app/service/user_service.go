@@ -61,6 +61,8 @@ func (u UserServiceModel) CreateUser(c *gin.Context) {
 			pkg.PanicException(constant.BadRequest)
 		}
 
+		godump.Dump(request)
+
 		hash, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 15)
 		request.Password = string(hash)
 
@@ -96,7 +98,14 @@ func (u UserServiceModel) UpdateUser(c *gin.Context) {
 			pkg.PanicException(constant.DataNotFound)
 		}
 
-		updateError := u.BaseRepository.Update(tx, userID, &user, &request)
+		godump.Dump(request)
+		updateData := map[string]any{
+			"username":  request.Username,
+			"fullname":  request.Fullname,
+			"avatar":    request.Avatar,
+			"is_active": request.IsActive,
+		}
+		updateError := u.BaseRepository.Update(tx, userID, &user, &updateData)
 
 		if updateError != nil {
 			log.Error("Happened error when updating data to database. Error", err)

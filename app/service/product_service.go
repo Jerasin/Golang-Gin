@@ -14,6 +14,7 @@ import (
 	"github.com/Jerasin/app/request"
 	"github.com/Jerasin/app/response"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/godump"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -65,10 +66,14 @@ func (p ProductServiceModel) CreateProduct(c *gin.Context) {
 			pkg.PanicException(constant.DataNotFound)
 		}
 
-		fmt.Printf("productCategory = %+v\n", request)
-		fmt.Printf("%+v\n", request)
+		godump.Dump(request)
+
 		isSaleOpenDate := reflect.ValueOf(request.SaleOpenDate).IsZero()
 		isSaleCloseDate := reflect.ValueOf(request.SaleCloseDate).IsZero()
+
+		godump.Dump(isSaleOpenDate)
+		godump.Dump(isSaleCloseDate)
+
 		newProduct := model.Product{
 			Name:              request.Name,
 			Description:       request.Description,
@@ -80,11 +85,11 @@ func (p ProductServiceModel) CreateProduct(c *gin.Context) {
 			// SaleCloseDate:     request.SaleCloseDate,
 		}
 
-		if isSaleOpenDate {
+		if !isSaleOpenDate {
 			newProduct.SaleOpenDate = request.SaleOpenDate
 		}
 
-		if isSaleCloseDate {
+		if !isSaleCloseDate {
 			newProduct.SaleCloseDate = request.SaleCloseDate
 		}
 
@@ -111,6 +116,27 @@ func (p ProductServiceModel) GetPaginationProduct(c *gin.Context, page int, page
 
 	// p.BaseRepository
 
+	id, ok := c.Get("userID")
+	if !ok {
+		pkg.PanicException(constant.BadRequest)
+	}
+
+	godump.Dump(id)
+
+	userID, ok := id.(uint)
+	if !ok {
+		pkg.PanicException(constant.BadRequest)
+	}
+	var user model.User
+
+	p.BaseRepository.FindOneV2(nil, &user, repository.Options{
+		Query:     "users.id = ?",
+		QueryArgs: []any{userID},
+		Preloads:  []string{"RoleInfo"},
+	})
+
+	// godump.Dump(user)
+
 	var products []model.Product
 	paginationModel := repository.PaginationModel{
 		Limit:     limit,
@@ -123,7 +149,15 @@ func (p ProductServiceModel) GetPaginationProduct(c *gin.Context, page int, page
 	}
 	now := time.Now()
 
-	data, err := p.BaseRepository.Pagination(paginationModel, "sale_open_date IS NULL OR sale_close_date IS NULL OR (sale_open_date <= ? AND  sale_close_date  >= ?)", now, now)
+	var data any
+	var err error
+	if user.RoleInfo.Name == "admin" {
+		data, err = p.BaseRepository.Pagination(paginationModel, nil)
+
+	} else {
+		data, err = p.BaseRepository.Pagination(paginationModel, "(sale_open_date IS NULL AND sale_close_date IS NULL) OR (sale_open_date <= ? AND  sale_close_date  >= ?)", now, now)
+
+	}
 
 	if err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
@@ -145,6 +179,8 @@ func (p ProductServiceModel) GetPaginationProduct(c *gin.Context, page int, page
 	var res []response.Product
 
 	pkg.ModelDump(&res, data)
+	// godump.Dump(data)
+	// godump.Dump(res)
 	c.JSON(http.StatusOK, pkg.BuildPaginationResponse(constant.Success, res, totalPage, page, pageSize, total))
 }
 

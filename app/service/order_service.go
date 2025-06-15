@@ -61,13 +61,15 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 
 		log.Debugf("productIDS = %+v\n", productIDS)
 
-		err = o.BaseRepository.Find(tx, &products, "id IN ? AND ((sale_open_date >= ? AND ? <= sale_close_date) OR (sale_open_date IS NULL AND sale_close_date IS NULL))", repository.PaginationModel{}, productIDS, currentDate, currentDate)
+		err = o.BaseRepository.Find(tx, &products, "id IN ? AND ((sale_open_date <= ? AND  sale_close_date  >= ?) OR (sale_open_date IS NULL AND sale_close_date IS NULL))", repository.PaginationModel{}, productIDS, currentDate, currentDate)
 		if err != nil {
 			log.Error("Find", err)
 			pkg.PanicException(constant.BadRequest)
 		}
 
-		fmt.Printf("products = %+v type = %T \n", products, products)
+		godump.Dump(len(products))
+		godump.Dump(len(productIDS))
+
 		if len(products) != len(productIDS) || len(products) == 0 {
 			log.Error("Error", len(products) != len(productIDS) || len(products) == 0)
 			pkg.PanicException(constant.DataNotFound)
@@ -100,7 +102,7 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 			products[index].Amount -= item.Amount
 		}
 
-		log.Debugf("products 2 = %+v\n", products)
+		godump.Dump(products)
 
 		username, err := util.GetPayloadInToken(c, "username")
 		if err != nil {

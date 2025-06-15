@@ -6,7 +6,7 @@ import (
 )
 
 func DbHandleSelectField(field any) map[string]interface{} {
-	result := make(map[string]interface{})
+	result := make(map[string]any)
 	buildSelectField(reflect.TypeOf(field), result)
 	return result
 }

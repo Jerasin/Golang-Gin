@@ -8,6 +8,7 @@ import (
 
 	"github.com/Jerasin/app/constant"
 	"github.com/Jerasin/app/pkg"
+	"github.com/goforj/godump"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -201,6 +202,7 @@ func (b BaseRepository) FindOneV2(tx *gorm.DB, model any, options Options) error
 	}
 
 	for _, preload := range options.Preloads {
+		godump.Dump(preload)
 		if preload != "" {
 			db = db.Preload(preload)
 		}

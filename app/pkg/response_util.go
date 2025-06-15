@@ -12,7 +12,7 @@ func Null() interface{} {
 	return nil
 }
 
-func ModelDump(res interface{}, data interface{}) error {
+func ModelDump(res any, data any) error {
 	err := copier.Copy(res, data)
 	if err != nil {
 		return fmt.Errorf("error copying data: %v", err)

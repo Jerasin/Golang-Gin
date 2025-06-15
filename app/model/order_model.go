@@ -7,4 +7,5 @@ type Order struct {
 	OrderDetail []OrderDetail
 	WalletID    uint `gorm:"not null"`
 	CreatedBy   uint `gorm:"not null"`
+	User        User `gorm:"foreignKey:CreatedBy"`
 }

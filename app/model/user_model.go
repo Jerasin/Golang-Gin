@@ -7,8 +7,9 @@ type User struct {
 	Fullname   string   `gorm:"unique;not null" json:"fullname,omitempty"`
 	Avatar     string   `json:"avatar,omitempty"`
 	Email      string   `gorm:"unique;not null" json:"email"`
-	Order      []Order  `gorm:"foreignKey:CreatedBy;references:ID" json:"ordes,omitempty"`
+	Order      []Order  `gorm:"foreignKey:CreatedBy;references:ID" json:"orders,omitempty"`
 	RoleInfoID uint     `gorm:"not null" json:"roleId"`
 	Wallets    []Wallet `json:"wallets,omitempty"`
 	IsActive   bool     `json:"isActive"`
+	RoleInfo   RoleInfo `gorm:"foreignKey:RoleInfoID;references:ID" json:"roleInfo,omitempty"`
 }
