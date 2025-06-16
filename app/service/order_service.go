@@ -112,23 +112,20 @@ func (o OrderServiceModel) CreateOrder(c *gin.Context) {
 		var user model.User
 		walletID := body.WalletID
 		options := repository.Options{
-			Query:     "username = ? AND wallets.id = ?",
-			QueryArgs: []interface{}{username, walletID},
-			Joins:     []string{"LEFT JOIN wallets ON users.id = wallets.user_id "},
+			Query:     "username = ? ",
+			QueryArgs: []any{username},
+			Joins:     []string{"LEFT JOIN wallets ON users.id = wallets.user_id"},
 			Preloads:  []string{"Wallets"},
 		}
 
 		o.BaseRepository.FindOneV2(tx, &user, options)
-		fmt.Printf("user = %+v", user)
 
 		walletCheck := false
 		var wallet model.Wallet
 		for _, userWallet := range user.Wallets {
-			if userWallet.Value >= totalPrice {
-				updateWallet := model.Wallet{
-					Value: userWallet.Value - totalPrice,
-				}
-				err = o.BaseRepository.Update(tx, int(walletID), &wallet, &updateWallet)
+			if userWallet.Value >= totalPrice && userWallet.ID == walletID {
+				total := userWallet.Value - totalPrice
+				err = o.BaseRepository.Update(tx, int(walletID), &wallet, map[string]any{"value": total})
 				if err != nil {
 					pkg.PanicException(constant.BadRequest)
 				}
