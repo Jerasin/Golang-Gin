@@ -44,21 +44,20 @@ func UserServiceInit(baseRepo repository.BaseRepositoryInterface, userRepo repos
 
 func (u UserServiceModel) CreateUser(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	u.BaseRepository.ClientDb().Transaction(func(tx *gorm.DB) error {
+	err := u.BaseRepository.ClientDb().Transaction(func(tx *gorm.DB) error {
 		var err error
 		var request model.User
 
 		log.Info("start to execute program add data user")
 
 		if err = c.ShouldBindJSON(&request); err != nil {
-			log.Error("Happened error when mapping request from FE. Error", err)
-			pkg.PanicException(constant.BadRequest)
+			return err
 		}
 
 		_, err = mail.ParseAddress(request.Email)
 		if err != nil {
 			log.Error("Happened error when mapping request from FE. Error", err)
-			pkg.PanicException(constant.BadRequest)
+			return err
 		}
 
 		godump.Dump(request)
@@ -68,13 +67,16 @@ func (u UserServiceModel) CreateUser(c *gin.Context) {
 
 		err = u.BaseRepository.Save(tx, &request)
 		if err != nil {
-			pkg.PanicDatabaseException(err, c)
+			return err
 		}
 
 		c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.CreateResponse()))
 		return nil
 	})
 
+	if err != nil {
+		pkg.PanicException(constant.BadRequest)
+	}
 }
 
 func (u UserServiceModel) UpdateUser(c *gin.Context) {
