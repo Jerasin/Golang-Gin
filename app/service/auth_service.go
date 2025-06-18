@@ -13,6 +13,7 @@ import (
 	"github.com/Jerasin/app/request"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/godump"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -55,7 +56,6 @@ func (authSvc AuthServiceModel) Login(c *gin.Context, loginDto dto.LoginDtoReque
 	err = authSvc.BaseRepository.FindOne(nil, &user, "username = ?", loginDto.Username)
 
 	if err != nil {
-		log.Error("Happened error when mapping request from FE. Error", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			pkg.PanicException(constant.DataNotFound)
 		}
@@ -63,19 +63,17 @@ func (authSvc AuthServiceModel) Login(c *gin.Context, loginDto dto.LoginDtoReque
 		pkg.PanicException(constant.InvalidRequest)
 	}
 
-	fmt.Println("user", user)
-
 	if !user.IsActive {
 		pkg.PanicException(constant.DataNotFound)
 	}
 
 	isError := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDto.Password))
 
-	fmt.Println("isError", isError)
+	godump.Dump(isError)
 
 	if isError != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
-		pkg.PanicException(constant.InvalidRequest)
+		pkg.PanicException(constant.BadRequest)
 	}
 
 	jwt := pkg.NewAuthService()

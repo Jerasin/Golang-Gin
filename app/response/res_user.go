@@ -31,6 +31,7 @@ type UserInfo struct {
 	// Password string `json:"password"`
 	FullName   string       `json:"fullname"`
 	Avatar     string       `json:"avatar"`
-	RoleInfoID uint         `json:"userId"`
+	RoleInfoID uint         `json:"roleId"`
 	RoleInfo   UserRoleInfo `json:"userRole"`
+	IsActive   bool         `json:"isActive"`
 }

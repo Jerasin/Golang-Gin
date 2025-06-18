@@ -248,6 +248,7 @@ func (u UserServiceModel) GetUserInfo(c *gin.Context) {
 		FullName:   user.Fullname,
 		Avatar:     user.Avatar,
 		RoleInfoID: user.RoleInfoID,
+		IsActive:   user.IsActive,
 		RoleInfo: response.UserRoleInfo{
 			Name:            roleInfo.Name,
 			Description:     roleInfo.Description,
